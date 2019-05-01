@@ -5,7 +5,6 @@ from newrelic_sdk import Span, API
 
 import logging
 
-
 _logger = logging.getLogger(__name__)
 
 

@@ -3,9 +3,13 @@ from opencensus.stats import stats
 from opencensus.metrics import transport
 from newrelic_sdk import API, GaugeMetric
 
+import logging
+
+_logger = logging.getLogger(__name__)
+
 
 class NewRelicStatsExporter(object):
-    def __init__(self, insert_key, interval=None, host=None):
+    def __init__(self, insert_key, interval=5, host=None):
         self.api = API(
             license_key=None, insert_key=insert_key, span_host=None, metric_host=host
         )
@@ -52,4 +56,13 @@ class NewRelicStatsExporter(object):
                 )
                 nr_metrics.append(nr_metric)
 
-        self.api.send_metrics(nr_metrics)
+        try:
+            response = self.api.send_metrics(nr_metrics)
+        except Exception:
+            _logger.exception("Failed to send metric data to New Relic.")
+            return
+
+        if not response.ok:
+            _logger.error(
+                "status code received was not ok. Status code: %r", response.status_code
+            )
