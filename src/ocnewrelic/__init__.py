@@ -1,4 +1,4 @@
-from ocnewrelic.exporter import NewRelicExporter
+from ocnewrelic.trace import NewRelicTraceExporter
 
 import os.path
 
@@ -9,4 +9,4 @@ try:
 except Exception:  # pragma: no cover
     __version__ = "unknown"  # pragma: no cover
 
-__all__ = ("NewRelicExporter",)
+__all__ = ("NewRelicTraceExporter",)

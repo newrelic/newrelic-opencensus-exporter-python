@@ -11,7 +11,7 @@ DEFAULT_HOST_NAME = "staging-collector.newrelic.com"
 _logger = logging.getLogger(__name__)
 
 
-class NewRelicExporter(base_exporter.Exporter):
+class NewRelicTraceExporter(base_exporter.Exporter):
     def __init__(
         self,
         license_key,
