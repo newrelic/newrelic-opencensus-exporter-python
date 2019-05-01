@@ -16,7 +16,8 @@ class NewRelicStatsExporter(object):
         self.views = {}
 
         # Register an exporter thread for this exporter
-        transport.get_exporter_thread(stats.stats, self, interval=interval)
+        thread = transport.get_exporter_thread(stats.stats, self, interval=interval)
+        self.interval = thread.interval
 
     def on_register_view(self, view):
         self.views[view.name] = view
@@ -29,11 +30,15 @@ class NewRelicStatsExporter(object):
             description = descriptor.description
             unit = descriptor.unit
 
-            tags = {"description": description, "unit": unit}
-
             view = self.views[name]
+            tags = {
+                "description": description,
+                "unit": unit,
+                "aggregationType": view.aggregation.aggregation_type,
+            }
+
             for timeseries in metric.time_series:
-                # In distribution aggregations, the values are not integers
+                # In distribution aggregations, the values do not have a value attribute
                 # We simply ignore this case for now
                 try:
                     value = timeseries.points[0].value.value
