@@ -6,8 +6,6 @@ from newrelic_sdk import Span, API
 import logging
 
 
-DEFAULT_HOST_NAME = "staging-collector.newrelic.com"
-
 _logger = logging.getLogger(__name__)
 
 
@@ -16,7 +14,7 @@ class NewRelicTraceExporter(base_exporter.Exporter):
         self,
         license_key,
         service_name="Python Application",
-        host_name=DEFAULT_HOST_NAME,
+        host_name=None,
         transport=sync.SyncTransport,
     ):
         self.entity = service_name
