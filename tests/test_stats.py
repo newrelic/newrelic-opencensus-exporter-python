@@ -16,7 +16,7 @@ def stats_exporter():
     return exporter
 
 
-def test_stats_recorder(stats_exporter):
+def test_stats_recorder(stats_exporter, ensure_utf8):
     stats = stats_module.stats
     view_manager = stats.view_manager
     stats_recorder = stats.stats_recorder
@@ -47,7 +47,7 @@ def test_stats_recorder(stats_exporter):
     mmap.record()
     # Send metrics to the exporter
     response = stats_exporter.export_metrics(stats.get_metrics())
-    data = json.loads(response.request.body)
+    data = json.loads(ensure_utf8(response.request.body))
     metric_data = data[0]["metrics"][0]
     assert metric_data["name"] == metric_name
     assert metric_data["value"] == metric_value
