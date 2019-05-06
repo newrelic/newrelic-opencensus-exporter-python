@@ -93,6 +93,8 @@ class NewRelicTraceExporter(base_exporter.Exporter):
                 "Status code received was not ok. Status code: %r", response.status_code
             )
 
+        return response
+
     def export(self, span_datas):
         """Export the trace. Send trace to transport, and transport will call
         exporter.emit() to actually send the trace to the specified tracing
