@@ -33,6 +33,11 @@ stages:
     container: $[ variables['containerImage'] ]
 
     steps:
+    - task: InstallSSHKey@0
+      inputs:
+        hostName: 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ=='
+        sshPublicKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCjIMBgsebqQiNRChMKYHXivB/h+g4T1A6SuxbGiyN3I6VyWGyZSiTZM3nHlphwSpSd1nrLaKQ0G+GaFwpqlhFfTzhGoy0QtHdIBTJmitNZhxPEZK7a2T4YTbV6iF5frPfE3v4yjvUmcKsELlMxH1MfDR9iLqLnQIGwtufcXUs7N4EUQiTjWpZ93YxYOzfiqUOCLjiG/qrM8sGKEc0yJ8IopiLF3nRyTK2gI1GHx+nY+0LQEYl27hYSWhwed0+laxwV1XMgjjijjrTTH39711XoN0ffNTE3XI3NksxU1+fnge0UZ4rHUli8wdLXwtGIH2/+vi8bKY3PbH7yrh9XKnuV'
+        sshKeySecureFile: 'python-telemetry#read_only'
     - script: |
         python=$(which pypy || which pypy3 || which python)
         $python -m pip install --upgrade pip setuptools tox --user
@@ -56,6 +61,11 @@ stages:
           python.version: '3.7'
 
     steps:
+    - task: InstallSSHKey@0
+      inputs:
+        hostName: 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ=='
+        sshPublicKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCjIMBgsebqQiNRChMKYHXivB/h+g4T1A6SuxbGiyN3I6VyWGyZSiTZM3nHlphwSpSd1nrLaKQ0G+GaFwpqlhFfTzhGoy0QtHdIBTJmitNZhxPEZK7a2T4YTbV6iF5frPfE3v4yjvUmcKsELlMxH1MfDR9iLqLnQIGwtufcXUs7N4EUQiTjWpZ93YxYOzfiqUOCLjiG/qrM8sGKEc0yJ8IopiLF3nRyTK2gI1GHx+nY+0LQEYl27hYSWhwed0+laxwV1XMgjjijjrTTH39711XoN0ffNTE3XI3NksxU1+fnge0UZ4rHUli8wdLXwtGIH2/+vi8bKY3PbH7yrh9XKnuV'
+        sshKeySecureFile: 'python-telemetry#read_only'
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '$(python.version)'
@@ -129,6 +139,12 @@ stages:
           hostName: 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ=='
           sshPublicKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCpAM2FD4LB1K7Z8xKpBPY8rEue9AG+KK46WpVddMnZDyCNWm6+NLQMfljP+tUM3GTe9r+2mqP7875SpgRd60ZnlDILiVH7AqK7bBJrEh6kAZq3AVIcTnvxapfLQ95r5+W0Th425DgU3/RhCgwDwB3ngnzsnHnk5z3lZCUJWEVkIQ6qEA6soinhOCtkKc/x6li73+LDBsm1mxlpCYL8NN/Lu2OqNzW0r1vLoRpII5IqxmNCU1Fs8qJ4+W8YJ+EuGJQedH8/2+RCSvDa6EN18X0tXoBDfl4YrZV7RQWXItLzWJ/ZByVyzKqSJYgUBSB3K/Il48CCqcoau20MBvkH/av'
           sshKeySecureFile: 'python-opencensus-exporter#deploy_key'
+
+      - task: InstallSSHKey@0
+        inputs:
+          hostName: 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ=='
+          sshPublicKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCjIMBgsebqQiNRChMKYHXivB/h+g4T1A6SuxbGiyN3I6VyWGyZSiTZM3nHlphwSpSd1nrLaKQ0G+GaFwpqlhFfTzhGoy0QtHdIBTJmitNZhxPEZK7a2T4YTbV6iF5frPfE3v4yjvUmcKsELlMxH1MfDR9iLqLnQIGwtufcXUs7N4EUQiTjWpZ93YxYOzfiqUOCLjiG/qrM8sGKEc0yJ8IopiLF3nRyTK2gI1GHx+nY+0LQEYl27hYSWhwed0+laxwV1XMgjjijjrTTH39711XoN0ffNTE3XI3NksxU1+fnge0UZ4rHUli8wdLXwtGIH2/+vi8bKY3PbH7yrh9XKnuV'
+          sshKeySecureFile: 'python-telemetry#read_only'
 
       - script: |
           git config --local user.name "Azure Pipelines"
