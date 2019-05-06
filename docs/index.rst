@@ -8,3 +8,5 @@ used to send span and metric data to New Relic from `OpenCensus`_.
 
 .. toctree::
    :maxdepth: 2
+
+   api

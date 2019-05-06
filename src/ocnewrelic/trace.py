@@ -9,6 +9,33 @@ _logger = logging.getLogger(__name__)
 
 
 class NewRelicTraceExporter(base_exporter.Exporter):
+    """Export Span data to the New Relic platform
+
+    This class is responsible for marshalling data to the New Relic platform.
+
+    :param license_key: Your New Relic license key
+    :type license_key: str
+    :param service_name: (optional) The name of the entity to report spans
+        into. Defaults to "Python Application".
+    :type service_name: str
+    :param host_name: (optional) Override the host for the API endpoint.
+    :type host_name: str
+    :param transport: (optional) Class for creating new transport objects. It
+        should extend from the base_exporter
+        :class:`opencensus.common.transports.base.Transport` type and implement
+        :meth:`opencensus.common.transports.base.Transport.export`. Defaults to
+        :class:`opencensus.common.transports.sync.SyncTransport`. The other option
+        is :class:`opencensus.common.transports.async.AsyncTransport`.
+    :type transport: :class:`opencensus.common.transports.base.Transport`
+
+    Usage::
+
+        >>> import os
+        >>> from ocnewrelic import NewRelicTraceExporter
+        >>> license_key = os.environ.get("NEW_RELIC_LICENSE_KEY")
+        >>> trace_exporter = NewRelicTraceExporter(license_key, service_name="My Service")
+    """
+
     def __init__(
         self,
         license_key,
@@ -26,11 +53,11 @@ class NewRelicTraceExporter(base_exporter.Exporter):
         self.transport = transport(self)
 
     def emit(self, span_datas):
-        """
-        :type span_datas: list of :class:
-            `~opencensus.trace.span_data.SpanData`
-        :param list of opencensus.trace.span_data.SpanData span_datas:
-            SpanData tuples to emit
+        """Immediately marshal span data to the tracing backend
+
+        :param span_datas: list of :class:`opencensus.trace.span_data.SpanData`
+            to emit
+        :type span_datas: list
         """
         spans = []
         for span_data in span_datas:
@@ -69,9 +96,9 @@ class NewRelicTraceExporter(base_exporter.Exporter):
         """Export the trace. Send trace to transport, and transport will call
         exporter.emit() to actually send the trace to the specified tracing
         backend.
-        :type span_datas: list of :class:
-            `~opencensus.trace.span_data.SpanData`
-        :param list of opencensus.trace.span_data.SpanData span_datas:
-            SpanData tuples to export
+
+        :param span_datas: list of :class:`opencensus.trace.span_data.SpanData`
+            to export.
+        :type span_datas: list
         """
         self.transport.export(span_datas)
