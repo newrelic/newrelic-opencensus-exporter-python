@@ -53,9 +53,9 @@ class NewRelicStatsExporter(object):
     def export_metrics(self, metrics):
         """Immediately send all metric data to the monitoring backend.
 
-        :param view_datas: list of ViewData object to send to the monitoring
+        :param metrics: list of Metric objects to send to the monitoring
             backend
-        :type view_datas: :class:`opencensus.stats.view_data.ViewData`
+        :type metrics: :class:`opencensus.metrics.export.metric.Metric`
         """
         nr_metrics = []
         for metric in metrics:
