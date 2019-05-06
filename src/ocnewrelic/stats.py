@@ -105,6 +105,7 @@ class NewRelicStatsExporter(object):
             _logger.error(
                 "status code received was not ok. Status code: %r", response.status_code
             )
+        return response
 
     def stop(self):
         """Terminate the exporter background thread"""
