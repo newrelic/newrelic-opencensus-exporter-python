@@ -1,0 +1,150 @@
+variables:
+- group: pypi-info
+
+trigger:
+  branches:
+    include:
+      - master
+      - refs/tags/v*
+    exclude:
+      - gh-pages
+
+stages:
+- stage: Test
+  jobs:
+  - job: Linux
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    strategy:
+      matrix:
+        Python27:
+          containerImage: python:2.7
+        Python35:
+          containerImage: python:3.5
+        Python36:
+          containerImage: python:3.6
+        Python37:
+          containerImage: python:3.7
+        PyPy:
+          containerImage: pypy:2.7
+        PyPy3:
+          containerImage: pypy:3.6
+
+    container: $[ variables['containerImage'] ]
+
+    steps:
+    - script: |
+        python=$(which pypy || which pypy3 || which python)
+        $python -m pip install --upgrade pip setuptools tox --user
+    - script: |
+        python=$(which pypy || which pypy3 || which python)
+        $python -m tox -epy
+      displayName: 'Tox'
+
+  - job: Windows
+    pool:
+      vmImage: 'windows-2019'
+    strategy:
+      matrix:
+        Python27:
+          python.version: '2.7'
+        Python35:
+          python.version: '3.5'
+        Python36:
+          python.version: '3.6'
+        Python37:
+          python.version: '3.7'
+
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(python.version)'
+      displayName: 'Use Python $(python.version)'
+
+    - script: |
+        python -m pip install --upgrade pip setuptools tox
+      displayName: 'Install dependencies'
+
+    - script: |
+        tox -epy
+      displayName: 'Tox'
+
+- stage: Lint
+  dependsOn: []
+  jobs:
+  - job: Lint
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    container: python:3.7
+
+    steps:
+    - script: |
+        python -m pip install --upgrade pip setuptools tox --user
+      displayName: 'Install dependencies'
+
+    - script: |
+        python -m tox -elint
+      displayName: 'Tox'
+
+- stage: Coverage
+  dependsOn: Test
+  jobs:
+  - job: Coverage
+    steps:
+    - task: BuildQualityChecks@5
+      inputs:
+        checkCoverage: true
+        coverageType: 'lines'
+        forceCoverageImprovement: true
+        coverageUpperThreshold: '90'
+
+- ${{ if eq(variables['Build.SourceBranch'], 'refs/tags/') }}:
+  - stage: Deploy
+    dependsOn: Test
+    condition: succeeded()
+    jobs:
+    - job: pypi
+      pool:
+        vmImage: 'Ubuntu-16.04'
+      container: python:3.7
+      steps:
+      - script: |
+          python setup.py sdist bdist_wheel
+          python -m pip install --user --upgrade twine
+          python -m twine upload --repository-url $PYPI_URL dist/*
+        env:
+          TWINE_USERNAME: $(TWINE_USERNAME)
+          TWINE_PASSWORD: $(TWINE_PASSWORD)
+          PYPI_URL: $(PYPI_URL)
+        displayName: 'Push to Python Package Index'
+    - job: docs
+      dependsOn: pypi
+      pool:
+        vmImage: 'Ubuntu-16.04'
+      container: python:3.7
+
+      steps:
+      - task: InstallSSHKey@0
+        inputs:
+          hostName: 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ=='
+          sshPublicKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCpAM2FD4LB1K7Z8xKpBPY8rEue9AG+KK46WpVddMnZDyCNWm6+NLQMfljP+tUM3GTe9r+2mqP7875SpgRd60ZnlDILiVH7AqK7bBJrEh6kAZq3AVIcTnvxapfLQ95r5+W0Th425DgU3/RhCgwDwB3ngnzsnHnk5z3lZCUJWEVkIQ6qEA6soinhOCtkKc/x6li73+LDBsm1mxlpCYL8NN/Lu2OqNzW0r1vLoRpII5IqxmNCU1Fs8qJ4+W8YJ+EuGJQedH8/2+RCSvDa6EN18X0tXoBDfl4YrZV7RQWXItLzWJ/ZByVyzKqSJYgUBSB3K/Il48CCqcoau20MBvkH/av'
+          sshKeySecureFile: 'python-opencensus-exporter#deploy_key'
+
+      - script: |
+          git config --local user.name "Azure Pipelines"
+          git config --local user.email "bot@bot.localhost"
+          git remote add upstream git@github.com:newrelic/python-opencensus-exporter.git
+          git fetch upstream gh-pages && git worktree add -B gh-pages docs/_build upstream/gh-pages
+        displayName: 'Prepare git directory for docs'
+
+      - script: |
+          python -m pip install --upgrade pip setuptools tox --user
+        displayName: 'Install dependencies'
+
+      - script: |
+          python -m tox -edocs
+        displayName: 'Generate docs'
+
+      - script: |
+          cd docs/_build && git add --all && git commit -m "Publishing docs to gh-pages" && git push
+        displayName: 'Publish Docs'
