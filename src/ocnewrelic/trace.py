@@ -11,7 +11,8 @@ _logger = logging.getLogger(__name__)
 class NewRelicTraceExporter(base_exporter.Exporter):
     """Export Span data to the New Relic platform
 
-    This class is responsible for marshalling data to the New Relic platform.
+    This class is responsible for marshalling trace data to the New Relic
+    platform.
 
     :param license_key: Your New Relic license key
     :type license_key: str

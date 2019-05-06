@@ -10,3 +10,10 @@ Trace Exporter
     :members:
     :undoc-members:
     :show-inheritance:
+
+Stats Exporter
+--------------
+.. automodule:: ocnewrelic.stats
+    :members:
+    :undoc-members:
+    :show-inheritance:
