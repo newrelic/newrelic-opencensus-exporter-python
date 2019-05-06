@@ -1,4 +1,6 @@
 import json
+import os
+import pytest
 from opencensus.stats import aggregation as aggregation_module
 from opencensus.stats import measure as measure_module
 from opencensus.stats import stats as stats_module
@@ -6,12 +8,18 @@ from opencensus.stats import view as view_module
 from ocnewrelic import NewRelicStatsExporter
 
 
-def test_stats_recorder():
+@pytest.fixture
+def stats_exporter():
+    insert_key = os.environ.get("NEW_RELIC_INSERT_KEY", "")
+    exporter = NewRelicStatsExporter(insert_key)
+    exporter.stop()
+    return exporter
+
+
+def test_stats_recorder(stats_exporter):
     stats = stats_module.stats
     view_manager = stats.view_manager
     stats_recorder = stats.stats_recorder
-    stats_exporter = NewRelicStatsExporter("NEW_RELIC_INSERT_KEY")
-    stats_exporter.stop()
     view_manager.register_exporter(stats_exporter)
 
     # Create the measures and views
