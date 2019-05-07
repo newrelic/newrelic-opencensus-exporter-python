@@ -91,7 +91,7 @@ class NewRelicStatsExporter(object):
                 _tags.update(zip(view.columns, label_values))
 
                 nr_metric = GaugeMetric(
-                    name=name, value=value, tags=tags, end_time_ms=end_time_ms
+                    name=name, value=value, tags=_tags, end_time_ms=end_time_ms
                 )
                 nr_metrics.append(nr_metric)
 
