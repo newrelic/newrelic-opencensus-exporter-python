@@ -1,0 +1,356 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API Reference &mdash; opencensus_ext_newrelic 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> opencensus_ext_newrelic
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-opencensus_ext_newrelic.trace">Trace Exporter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-opencensus_ext_newrelic.stats">Stats Exporter</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">opencensus_ext_newrelic</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>API Reference</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-opencensus_ext_newrelic">
+<span id="api-reference"></span><h1>API Reference<a class="headerlink" href="#module-opencensus_ext_newrelic" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-opencensus_ext_newrelic.trace">
+<span id="trace-exporter"></span><h2>Trace Exporter<a class="headerlink" href="#module-opencensus_ext_newrelic.trace" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencensus_ext_newrelic.trace.DefaultTransport">
+<em class="property">class </em><code class="sig-prename descclassname">opencensus_ext_newrelic.trace.</code><code class="sig-name descname">DefaultTransport</code><span class="sig-paren">(</span><em class="sig-param">exporter</em>, <em class="sig-param">grace_period=None</em>, <em class="sig-param">max_batch_size=600</em>, <em class="sig-param">wait_period=5.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opencensus_ext_newrelic/trace.html#DefaultTransport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opencensus_ext_newrelic.trace.DefaultTransport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.common.transports.async_.AsyncTransport</span></code></p>
+<dl class="method">
+<dt id="opencensus_ext_newrelic.trace.DefaultTransport.stop">
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/opencensus_ext_newrelic/trace.html#DefaultTransport.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opencensus_ext_newrelic.trace.DefaultTransport.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate the background thread</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="opencensus_ext_newrelic.trace.NewRelicTraceExporter">
+<em class="property">class </em><code class="sig-prename descclassname">opencensus_ext_newrelic.trace.</code><code class="sig-name descname">NewRelicTraceExporter</code><span class="sig-paren">(</span><em class="sig-param">insert_key</em>, <em class="sig-param">service_name</em>, <em class="sig-param">host=None</em>, <em class="sig-param">transport=&lt;class 'opencensus_ext_newrelic.trace.DefaultTransport'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opencensus_ext_newrelic/trace.html#NewRelicTraceExporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opencensus_ext_newrelic.trace.NewRelicTraceExporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.trace.base_exporter.Exporter</span></code></p>
+<p>Export Span data to the New Relic platform</p>
+<p>This class is responsible for marshalling trace data to the New Relic
+platform.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>insert_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Insights insert key</p></li>
+<li><p><strong>service_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – (optional) The name of the entity to report spans
+into. Defaults to “Python Application”.</p></li>
+<li><p><strong>host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – (optional) Override the host for the API endpoint.</p></li>
+<li><p><strong>transport</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.common.transports.base.Transport</span></code>) – (optional) Class for creating new transport objects. It
+should extend from the base_exporter
+<code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.common.transports.base.Transport</span></code> type and implement
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">opencensus.common.transports.base.Transport.export()</span></code>. Defaults to
+an async transport sending data every 5 seconds. The other option is
+<code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.common.transports.async.AsyncTransport</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">opencensus_ext_newrelic</span> <span class="k">import</span> <span class="n">NewRelicTraceExporter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">insert_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NEW_RELIC_INSERT_KEY&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trace_exporter</span> <span class="o">=</span> <span class="n">NewRelicTraceExporter</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">insert_key</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;My Service&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trace_exporter</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="opencensus_ext_newrelic.trace.NewRelicTraceExporter.emit">
+<code class="sig-name descname">emit</code><span class="sig-paren">(</span><em class="sig-param">span_datas</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opencensus_ext_newrelic/trace.html#NewRelicTraceExporter.emit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opencensus_ext_newrelic.trace.NewRelicTraceExporter.emit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Immediately marshal span data to the tracing backend</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>span_datas</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – list of <code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.trace.span_data.SpanData</span></code>
+to emit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opencensus_ext_newrelic.trace.NewRelicTraceExporter.export">
+<code class="sig-name descname">export</code><span class="sig-paren">(</span><em class="sig-param">span_datas</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opencensus_ext_newrelic/trace.html#NewRelicTraceExporter.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opencensus_ext_newrelic.trace.NewRelicTraceExporter.export" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the trace. Send trace to transport, and transport will call
+exporter.emit() to actually send the trace to the specified tracing
+backend.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>span_datas</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – list of <code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.trace.span_data.SpanData</span></code>
+to export.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opencensus_ext_newrelic.trace.NewRelicTraceExporter.stop">
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/opencensus_ext_newrelic/trace.html#NewRelicTraceExporter.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opencensus_ext_newrelic.trace.NewRelicTraceExporter.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate the exporter and any background threads</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-opencensus_ext_newrelic.stats">
+<span id="stats-exporter"></span><h2>Stats Exporter<a class="headerlink" href="#module-opencensus_ext_newrelic.stats" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencensus_ext_newrelic.stats.NewRelicStatsExporter">
+<em class="property">class </em><code class="sig-prename descclassname">opencensus_ext_newrelic.stats.</code><code class="sig-name descname">NewRelicStatsExporter</code><span class="sig-paren">(</span><em class="sig-param">insert_key</em>, <em class="sig-param">service_name</em>, <em class="sig-param">host=None</em>, <em class="sig-param">interval=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opencensus_ext_newrelic/stats.html#NewRelicStatsExporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opencensus_ext_newrelic.stats.NewRelicStatsExporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Export Metric data to the New Relic platform</p>
+<p>This class is responsible for marshalling metric data to the New Relic
+platform.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>insert_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Insights insert key</p></li>
+<li><p><strong>interval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – (optional) Metrics will be sent every <code class="docutils literal notranslate"><span class="pre">interval</span></code>
+seconds. Default is 5 seconds.</p></li>
+<li><p><strong>host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – (optional) Override the host for the API endpoint.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">opencensus_ext_newrelic</span> <span class="k">import</span> <span class="n">NewRelicStatsExporter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">insert_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NEW_RELIC_INSERT_KEY&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stats_exporter</span> <span class="o">=</span> <span class="n">NewRelicStatsExporter</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">insert_key</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;My Service&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stats_exporter</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="opencensus_ext_newrelic.stats.NewRelicStatsExporter.export_metrics">
+<code class="sig-name descname">export_metrics</code><span class="sig-paren">(</span><em class="sig-param">metrics</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opencensus_ext_newrelic/stats.html#NewRelicStatsExporter.export_metrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opencensus_ext_newrelic.stats.NewRelicStatsExporter.export_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Immediately send all metric data to the monitoring backend.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>metrics</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.metrics.export.metric.Metric</span></code>) – list of Metric objects to send to the monitoring
+backend</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opencensus_ext_newrelic.stats.NewRelicStatsExporter.on_register_view">
+<code class="sig-name descname">on_register_view</code><span class="sig-paren">(</span><em class="sig-param">view</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opencensus_ext_newrelic/stats.html#NewRelicStatsExporter.on_register_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opencensus_ext_newrelic.stats.NewRelicStatsExporter.on_register_view" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when a view is registered with the view manager</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>view</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.stats.view.View</span></code>) – View object to register</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opencensus_ext_newrelic.stats.NewRelicStatsExporter.stop">
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/opencensus_ext_newrelic/stats.html#NewRelicStatsExporter.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opencensus_ext_newrelic.stats.NewRelicStatsExporter.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate the exporter background thread</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="opencensus_ext_newrelic.stats.create_identity">
+<code class="sig-prename descclassname">opencensus_ext_newrelic.stats.</code><code class="sig-name descname">create_identity</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">tags</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opencensus_ext_newrelic/stats.html#create_identity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opencensus_ext_newrelic.stats.create_identity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, New Relic
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

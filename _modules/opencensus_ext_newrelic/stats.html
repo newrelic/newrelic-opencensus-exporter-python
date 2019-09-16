@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opencensus_ext_newrelic.stats &mdash; opencensus_ext_newrelic 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> opencensus_ext_newrelic
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">opencensus_ext_newrelic</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>opencensus_ext_newrelic.stats</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opencensus_ext_newrelic.stats</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2019 New Relic, Inc.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+
+<span class="kn">import</span> <span class="nn">calendar</span>
+<span class="kn">from</span> <span class="nn">opencensus.stats</span> <span class="k">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">opencensus.metrics</span> <span class="k">import</span> <span class="n">transport</span>
+<span class="kn">from</span> <span class="nn">opencensus.stats</span> <span class="k">import</span> <span class="n">aggregation</span>
+<span class="kn">from</span> <span class="nn">newrelic_telemetry_sdk</span> <span class="k">import</span> <span class="n">MetricClient</span><span class="p">,</span> <span class="n">GaugeMetric</span><span class="p">,</span> <span class="n">CountMetric</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">COUNT_AGGREGATION_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="n">aggregation</span><span class="o">.</span><span class="n">CountAggregation</span><span class="p">,</span> <span class="n">aggregation</span><span class="o">.</span><span class="n">SumAggregation</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="create_identity"><a class="viewcode-back" href="../../api.html#opencensus_ext_newrelic.stats.create_identity">[docs]</a><span class="k">def</span> <span class="nf">create_identity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
+    <span class="n">tags</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="n">identity</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">identity</span></div>
+
+
+<div class="viewcode-block" id="NewRelicStatsExporter"><a class="viewcode-back" href="../../api.html#opencensus_ext_newrelic.stats.NewRelicStatsExporter">[docs]</a><span class="k">class</span> <span class="nc">NewRelicStatsExporter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export Metric data to the New Relic platform</span>
+
+<span class="sd">    This class is responsible for marshalling metric data to the New Relic</span>
+<span class="sd">    platform.</span>
+
+<span class="sd">    :param insert_key: Insights insert key</span>
+<span class="sd">    :type insert_key: str</span>
+<span class="sd">    :param interval: (optional) Metrics will be sent every ``interval``</span>
+<span class="sd">        seconds. Default is 5 seconds.</span>
+<span class="sd">    :type interval: int or float</span>
+<span class="sd">    :param host: (optional) Override the host for the API endpoint.</span>
+<span class="sd">    :type host: str</span>
+
+<span class="sd">    Usage::</span>
+
+<span class="sd">        &gt;&gt;&gt; import os</span>
+<span class="sd">        &gt;&gt;&gt; from opencensus_ext_newrelic import NewRelicStatsExporter</span>
+<span class="sd">        &gt;&gt;&gt; insert_key = os.environ.get(&quot;NEW_RELIC_INSERT_KEY&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; stats_exporter = NewRelicStatsExporter(</span>
+<span class="sd">        ...     insert_key, service_name=&quot;My Service&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; stats_exporter.stop()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">insert_key</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">MetricClient</span><span class="p">(</span><span class="n">insert_key</span><span class="o">=</span><span class="n">insert_key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">views</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count_values</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Register an exporter thread for this exporter</span>
+        <span class="n">thread</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span> <span class="o">=</span> <span class="n">transport</span><span class="o">.</span><span class="n">get_exporter_thread</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">stats</span><span class="o">.</span><span class="n">stats</span><span class="p">],</span> <span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">thread</span><span class="o">.</span><span class="n">interval</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_common</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;interval.ms&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+            <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;service.name&quot;</span><span class="p">:</span> <span class="n">service_name</span><span class="p">},</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="NewRelicStatsExporter.on_register_view"><a class="viewcode-back" href="../../api.html#opencensus_ext_newrelic.stats.NewRelicStatsExporter.on_register_view">[docs]</a>    <span class="k">def</span> <span class="nf">on_register_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Called when a view is registered with the view manager</span>
+
+<span class="sd">        :param view: View object to register</span>
+<span class="sd">        :type view: :class:`opencensus.stats.view.View`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">views</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">[</span><span class="n">view</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">view</span></div>
+
+<div class="viewcode-block" id="NewRelicStatsExporter.export_metrics"><a class="viewcode-back" href="../../api.html#opencensus_ext_newrelic.stats.NewRelicStatsExporter.export_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">export_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Immediately send all metric data to the monitoring backend.</span>
+
+<span class="sd">        :param metrics: list of Metric objects to send to the monitoring</span>
+<span class="sd">            backend</span>
+<span class="sd">        :type metrics: :class:`opencensus.metrics.export.metric.Metric`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nr_metrics</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
+            <span class="n">descriptor</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">descriptor</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">measure_name</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">measure_unit</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">unit</span>
+            <span class="n">aggregation_type</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">aggregation</span>
+
+            <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;measure.name&quot;</span><span class="p">:</span> <span class="n">measure_name</span><span class="p">,</span> <span class="s2">&quot;measure.unit&quot;</span><span class="p">:</span> <span class="n">measure_unit</span><span class="p">}</span>
+
+            <span class="k">for</span> <span class="n">timeseries</span> <span class="ow">in</span> <span class="n">metric</span><span class="o">.</span><span class="n">time_series</span><span class="p">:</span>
+                <span class="c1"># In distribution aggregations, the values do not have a value attribute</span>
+                <span class="c1"># We simply ignore this case for now</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">value</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+                <span class="n">timestamp</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">timestamp</span>
+                <span class="n">time_tuple</span> <span class="o">=</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">utctimetuple</span><span class="p">()</span>
+                <span class="n">epoch_time_secs</span> <span class="o">=</span> <span class="n">calendar</span><span class="o">.</span><span class="n">timegm</span><span class="p">(</span><span class="n">time_tuple</span><span class="p">)</span>
+                <span class="n">epoch_time_mus</span> <span class="o">=</span> <span class="n">epoch_time_secs</span> <span class="o">*</span> <span class="mf">1e6</span> <span class="o">+</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">microsecond</span>
+                <span class="n">end_time_ms</span> <span class="o">=</span> <span class="n">epoch_time_mus</span> <span class="o">//</span> <span class="mi">1000</span>
+
+                <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">label_values</span><span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="n">_tags</span> <span class="o">=</span> <span class="n">tags</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">_tags</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">aggregation_type</span><span class="p">)</span> <span class="ow">in</span> <span class="n">COUNT_AGGREGATION_TYPES</span><span class="p">:</span>
+                    <span class="n">identity</span> <span class="o">=</span> <span class="n">create_identity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_tags</span><span class="p">)</span>
+
+                    <span class="c1"># Compute a delta count based on the previous value. If one</span>
+                    <span class="c1"># does not exist, report the raw count value.</span>
+                    <span class="n">delta</span> <span class="o">=</span> <span class="n">value</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">identity</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">count_values</span><span class="p">[</span><span class="n">identity</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">delta</span>
+
+                    <span class="n">nr_metric</span> <span class="o">=</span> <span class="n">CountMetric</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">_tags</span><span class="p">,</span> <span class="n">end_time_ms</span><span class="o">=</span><span class="n">end_time_ms</span>
+                    <span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">nr_metric</span> <span class="o">=</span> <span class="n">GaugeMetric</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">_tags</span><span class="p">,</span> <span class="n">end_time_ms</span><span class="o">=</span><span class="n">end_time_ms</span>
+                    <span class="p">)</span>
+
+                <span class="n">nr_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nr_metric</span><span class="p">)</span>
+
+        <span class="c1"># Do not send an empty metrics payload (only DistributionAggregation values)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nr_metrics</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">send_batch</span><span class="p">(</span><span class="n">nr_metrics</span><span class="p">,</span> <span class="n">common</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_common</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;New Relic send_metrics failed with an exception.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;New Relic send_metrics failed with status code: </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+<div class="viewcode-block" id="NewRelicStatsExporter.stop"><a class="viewcode-back" href="../../api.html#opencensus_ext_newrelic.stats.NewRelicStatsExporter.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Terminate the exporter background thread&quot;&quot;&quot;</span>
+        <span class="n">thread</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span>
+
+        <span class="n">stop</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">thread</span><span class="p">,</span> <span class="s2">&quot;stop&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">thread</span><span class="p">,</span> <span class="s2">&quot;cancel&quot;</span><span class="p">)</span>
+        <span class="n">stop</span><span class="p">()</span>
+
+        <span class="c1"># Send all pending metrics</span>
+        <span class="n">thread</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">thread</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">thread</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Clear all internal state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">views</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_values</span> <span class="o">=</span> <span class="kc">None</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, New Relic
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
