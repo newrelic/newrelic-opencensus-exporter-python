@@ -150,8 +150,7 @@ class NewRelicStatsExporter(object):
 
         if not response.ok:
             _logger.error(
-                "New Relic send_metrics failed with status code: %r",
-                response.status_code,
+                "New Relic send_metrics failed with status code: %r", response.status
             )
         return response
 

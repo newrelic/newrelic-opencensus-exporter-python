@@ -1,8 +1,8 @@
 import os
 import functools
 import pytest
-from requests.adapters import HTTPAdapter
-from requests.models import Response
+from newrelic_telemetry_sdk.client import HTTPResponse
+from urllib3 import HTTPConnectionPool
 
 try:
     string_types = basestring
@@ -19,14 +19,26 @@ def _ensure_utf8(s):
     return s
 
 
-def _mocked_status_code(wrapped, status_code, disable_requests):
+class Request(object):
+    def __init__(instance, self, method, url, body=None, headers=None, *args, **kwargs):
+        headers = headers or self.headers
+        instance.method = method
+        instance.url = url
+        instance.body = body
+        instance.headers = headers
+        instance.args = args
+        instance.kwargs = kwargs
+
+
+def _capture_request(wrapped, status_code, disable_requests):
     if disable_requests:
 
         @functools.wraps(wrapped)
-        def wrapper(self, request, *args, **kwargs):
-            response = Response()
-            response.status_code = status_code
-            response.request = request
+        def wrapper(*args, **kwargs):
+            response = HTTPResponse(status=202)
+            response.request = Request(*args, **kwargs)
+            if status_code is not None:
+                response.status = status_code
             return response
 
     else:
@@ -34,7 +46,9 @@ def _mocked_status_code(wrapped, status_code, disable_requests):
         @functools.wraps(wrapped)
         def wrapper(*args, **kwargs):
             response = wrapped(*args, **kwargs)
-            response.status_code = status_code
+            response.request = Request(*args, **kwargs)
+            if status_code is not None:
+                response.status = status_code
             return response
 
     return wrapper
@@ -88,11 +102,9 @@ def mocked_responses(request, monkeypatch):
             *http_response_marker.args, **http_response_marker.kwargs
         )
 
-    # If we should not inject a mocked response, return without patching
-    if status_code is None:
-        return
-
-    wrapped = HTTPAdapter.send
+    wrapped = HTTPConnectionPool.urlopen
     monkeypatch.setattr(
-        HTTPAdapter, "send", _mocked_status_code(wrapped, status_code, disable_requests)
+        HTTPConnectionPool,
+        "urlopen",
+        _capture_request(wrapped, status_code, disable_requests),
     )

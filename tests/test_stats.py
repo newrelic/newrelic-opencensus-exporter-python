@@ -185,8 +185,7 @@ def test_bad_http_response(stats_exporter, caplog):
 
     metric = metric_utils.view_data_to_metric(view_data, TEST_TIMESTAMP)
 
-    response = stats_exporter.export_metrics([metric])
-    assert response.status_code == 500
+    stats_exporter.export_metrics([metric])
 
     assert (
         "opencensus_ext_newrelic.stats",
