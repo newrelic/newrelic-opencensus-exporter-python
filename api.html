@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>API Reference &mdash; opencensus_ext_newrelic 0.1.0 documentation</title>
+  <title>API Reference &mdash; opencensus_ext_newrelic 0.1.1 documentation</title>
   
 
   
@@ -182,10 +182,10 @@ platform.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>insert_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Insights insert key</p></li>
-<li><p><strong>service_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – (optional) The name of the entity to report spans
+<li><p><strong>insert_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Insights insert key</p></li>
+<li><p><strong>service_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – (optional) The name of the entity to report spans
 into. Defaults to “Python Application”.</p></li>
-<li><p><strong>host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – (optional) Override the host for the API endpoint.</p></li>
+<li><p><strong>host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – (optional) Override the host for the API endpoint.</p></li>
 <li><p><strong>transport</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.common.transports.base.Transport</span></code>) – (optional) Class for creating new transport objects. It
 should extend from the base_exporter
 <code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.common.transports.base.Transport</span></code> type and implement
@@ -210,7 +210,7 @@ an async transport sending data every 5 seconds. The other option is
 <dd><p>Immediately marshal span data to the tracing backend</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>span_datas</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – list of <code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.trace.span_data.SpanData</span></code>
+<dd class="field-odd"><p><strong>span_datas</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – list of <code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.trace.span_data.SpanData</span></code>
 to emit</p>
 </dd>
 </dl>
@@ -224,7 +224,7 @@ exporter.emit() to actually send the trace to the specified tracing
 backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>span_datas</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – list of <code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.trace.span_data.SpanData</span></code>
+<dd class="field-odd"><p><strong>span_datas</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – list of <code class="xref py py-class docutils literal notranslate"><span class="pre">opencensus.trace.span_data.SpanData</span></code>
 to export.</p>
 </dd>
 </dl>
@@ -244,17 +244,17 @@ to export.</p>
 <dl class="class">
 <dt id="opencensus_ext_newrelic.stats.NewRelicStatsExporter">
 <em class="property">class </em><code class="sig-prename descclassname">opencensus_ext_newrelic.stats.</code><code class="sig-name descname">NewRelicStatsExporter</code><span class="sig-paren">(</span><em class="sig-param">insert_key</em>, <em class="sig-param">service_name</em>, <em class="sig-param">host=None</em>, <em class="sig-param">interval=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opencensus_ext_newrelic/stats.html#NewRelicStatsExporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opencensus_ext_newrelic.stats.NewRelicStatsExporter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Export Metric data to the New Relic platform</p>
 <p>This class is responsible for marshalling metric data to the New Relic
 platform.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>insert_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Insights insert key</p></li>
-<li><p><strong>interval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – (optional) Metrics will be sent every <code class="docutils literal notranslate"><span class="pre">interval</span></code>
+<li><p><strong>insert_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Insights insert key</p></li>
+<li><p><strong>interval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – (optional) Metrics will be sent every <code class="docutils literal notranslate"><span class="pre">interval</span></code>
 seconds. Default is 5 seconds.</p></li>
-<li><p><strong>host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – (optional) Override the host for the API endpoint.</p></li>
+<li><p><strong>host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – (optional) Override the host for the API endpoint.</p></li>
 </ul>
 </dd>
 </dl>
