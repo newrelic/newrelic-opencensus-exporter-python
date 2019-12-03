@@ -20,6 +20,11 @@ from newrelic_telemetry_sdk import MetricClient, GaugeMetric, CountMetric
 
 import logging
 
+try:
+    from opencensus_ext_newrelic.version import version as __version__
+except ImportError:  # pragma: no cover
+    __version__ = "unknown"  # pragma: no cover
+
 _logger = logging.getLogger(__name__)
 COUNT_AGGREGATION_TYPES = {aggregation.CountAggregation, aggregation.SumAggregation}
 
@@ -55,7 +60,8 @@ class NewRelicStatsExporter(object):
     """
 
     def __init__(self, insert_key, service_name, host=None, interval=5):
-        self.client = MetricClient(insert_key=insert_key, host=host)
+        client = self.client = MetricClient(insert_key=insert_key, host=host)
+        client.add_version_info("NewRelic-Python-OpenCensus", __version__)
         self.views = {}
         self.count_values = {}
 
