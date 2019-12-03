@@ -114,8 +114,13 @@ def test_stats(stats_exporter, ensure_utf8, tag_values):
 
     # Send metrics to exporter
     response = stats_exporter.export_metrics(metrics)
-    data = json.loads(ensure_utf8(response.request.body))
 
+    # Verify headers
+    user_agent = response.request.headers["user-agent"]
+    assert user_agent.split()[-1].startswith("NewRelic-Python-OpenCensus/")
+
+    # Verify payload
+    data = json.loads(ensure_utf8(response.request.body))
     common = data[0]["common"]
     assert len(common) == 2
     assert common["interval.ms"] == stats_exporter.interval * 1000

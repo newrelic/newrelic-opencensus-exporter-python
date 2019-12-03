@@ -47,6 +47,12 @@ def test_trace(trace_exporter, ensure_utf8):
     timestamp = 1557533268000
 
     response = trace_exporter.export([SPAN_DATA])
+
+    # Verify headers
+    user_agent = response.request.headers["user-agent"]
+    assert user_agent.split()[-1].startswith("NewRelic-Python-OpenCensus/")
+
+    # Verify payload
     data = json.loads(ensure_utf8(response.request.body))
     assert len(data) == 1
     data = data[0]

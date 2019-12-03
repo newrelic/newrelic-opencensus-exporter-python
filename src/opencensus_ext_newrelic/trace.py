@@ -19,6 +19,11 @@ from newrelic_telemetry_sdk import Span, SpanClient
 
 import logging
 
+try:
+    from opencensus_ext_newrelic.version import version as __version__
+except ImportError:  # pragma: no cover
+    __version__ = "unknown"  # pragma: no cover
+
 _logger = logging.getLogger(__name__)
 
 
@@ -68,7 +73,8 @@ class NewRelicTraceExporter(base_exporter.Exporter):
 
     def __init__(self, insert_key, service_name, host=None, transport=DefaultTransport):
         self._common = {"attributes": {"service.name": service_name}}
-        self.client = SpanClient(insert_key=insert_key, host=host)
+        client = self.client = SpanClient(insert_key=insert_key, host=host)
+        client.add_version_info("NewRelic-Python-OpenCensus", __version__)
         self._transport = transport(self)
 
     def emit(self, span_datas):
