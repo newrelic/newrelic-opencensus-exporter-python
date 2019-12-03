@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>API Reference &mdash; opencensus_ext_newrelic 0.1.1 documentation</title>
+  <title>API Reference &mdash; opencensus_ext_newrelic 0.1.2 documentation</title>
   
 
   
@@ -197,7 +197,7 @@ an async transport sending data every 5 seconds. The other option is
 </dl>
 <p>Usage:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">opencensus_ext_newrelic</span> <span class="k">import</span> <span class="n">NewRelicTraceExporter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">opencensus_ext_newrelic</span> <span class="kn">import</span> <span class="n">NewRelicTraceExporter</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">insert_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NEW_RELIC_INSERT_KEY&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">trace_exporter</span> <span class="o">=</span> <span class="n">NewRelicTraceExporter</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">insert_key</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;My Service&quot;</span><span class="p">)</span>
@@ -260,7 +260,7 @@ seconds. Default is 5 seconds.</p></li>
 </dl>
 <p>Usage:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">opencensus_ext_newrelic</span> <span class="k">import</span> <span class="n">NewRelicStatsExporter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">opencensus_ext_newrelic</span> <span class="kn">import</span> <span class="n">NewRelicStatsExporter</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">insert_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NEW_RELIC_INSERT_KEY&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stats_exporter</span> <span class="o">=</span> <span class="n">NewRelicStatsExporter</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">insert_key</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;My Service&quot;</span><span class="p">)</span>

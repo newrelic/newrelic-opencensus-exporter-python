@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opencensus_ext_newrelic.trace &mdash; opencensus_ext_newrelic 0.1.1 documentation</title>
+  <title>opencensus_ext_newrelic.trace &mdash; opencensus_ext_newrelic 0.1.2 documentation</title>
   
 
   
@@ -164,18 +164,23 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 
-<span class="kn">from</span> <span class="nn">opencensus.common.transports</span> <span class="k">import</span> <span class="n">async_</span>
-<span class="kn">from</span> <span class="nn">opencensus.common.utils</span> <span class="k">import</span> <span class="n">timestamp_to_microseconds</span>
-<span class="kn">from</span> <span class="nn">opencensus.trace</span> <span class="k">import</span> <span class="n">base_exporter</span>
-<span class="kn">from</span> <span class="nn">newrelic_telemetry_sdk</span> <span class="k">import</span> <span class="n">Span</span><span class="p">,</span> <span class="n">SpanClient</span>
+<span class="kn">from</span> <span class="nn">opencensus.common.transports</span> <span class="kn">import</span> <span class="n">async_</span>
+<span class="kn">from</span> <span class="nn">opencensus.common.utils</span> <span class="kn">import</span> <span class="n">timestamp_to_microseconds</span>
+<span class="kn">from</span> <span class="nn">opencensus.trace</span> <span class="kn">import</span> <span class="n">base_exporter</span>
+<span class="kn">from</span> <span class="nn">newrelic_telemetry_sdk</span> <span class="kn">import</span> <span class="n">Span</span><span class="p">,</span> <span class="n">SpanClient</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">opencensus_ext_newrelic.version</span> <span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">__version__</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+    <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>  <span class="c1"># pragma: no cover</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="DefaultTransport"><a class="viewcode-back" href="../../api.html#opencensus_ext_newrelic.trace.DefaultTransport">[docs]</a><span class="k">class</span> <span class="nc">DefaultTransport</span><span class="p">(</span><span class="n">async_</span><span class="o">.</span><span class="n">AsyncTransport</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">exporter</span><span class="p">,</span> <span class="n">grace_period</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_batch_size</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">wait_period</span><span class="o">=</span><span class="mf">5.0</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DefaultTransport</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -218,9 +223,10 @@
 <span class="sd">        &gt;&gt;&gt; trace_exporter.stop()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">insert_key</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transport</span><span class="o">=</span><span class="n">DefaultTransport</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">insert_key</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transport</span><span class="o">=</span><span class="n">DefaultTransport</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_common</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;service.name&quot;</span><span class="p">:</span> <span class="n">service_name</span><span class="p">}}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">SpanClient</span><span class="p">(</span><span class="n">insert_key</span><span class="o">=</span><span class="n">insert_key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">SpanClient</span><span class="p">(</span><span class="n">insert_key</span><span class="o">=</span><span class="n">insert_key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">add_version_info</span><span class="p">(</span><span class="s2">&quot;NewRelic-Python-OpenCensus&quot;</span><span class="p">,</span> <span class="n">__version__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_transport</span> <span class="o">=</span> <span class="n">transport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="NewRelicTraceExporter.emit"><a class="viewcode-back" href="../../api.html#opencensus_ext_newrelic.trace.NewRelicTraceExporter.emit">[docs]</a>    <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">span_datas</span><span class="p">):</span>
