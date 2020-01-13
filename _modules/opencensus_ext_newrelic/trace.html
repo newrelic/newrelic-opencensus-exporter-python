@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opencensus_ext_newrelic.trace &mdash; opencensus_ext_newrelic 0.1.2 documentation</title>
+  <title>opencensus_ext_newrelic.trace &mdash; opencensus_ext_newrelic 0.1.3 documentation</title>
   
 
   
@@ -226,7 +226,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">insert_key</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transport</span><span class="o">=</span><span class="n">DefaultTransport</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_common</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;service.name&quot;</span><span class="p">:</span> <span class="n">service_name</span><span class="p">}}</span>
         <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">SpanClient</span><span class="p">(</span><span class="n">insert_key</span><span class="o">=</span><span class="n">insert_key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">)</span>
-        <span class="n">client</span><span class="o">.</span><span class="n">add_version_info</span><span class="p">(</span><span class="s2">&quot;NewRelic-Python-OpenCensus&quot;</span><span class="p">,</span> <span class="n">__version__</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">add_version_info</span><span class="p">(</span><span class="s2">&quot;NewRelic-OpenCensus-Exporter&quot;</span><span class="p">,</span> <span class="n">__version__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_transport</span> <span class="o">=</span> <span class="n">transport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="NewRelicTraceExporter.emit"><a class="viewcode-back" href="../../api.html#opencensus_ext_newrelic.trace.NewRelicTraceExporter.emit">[docs]</a>    <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">span_datas</span><span class="p">):</span>
