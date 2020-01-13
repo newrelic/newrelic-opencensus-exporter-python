@@ -1,6 +1,7 @@
 import setuptools
 
 setuptools.setup(
+    name="opencensus-ext-newrelic",
     use_scm_version={
         "write_to": "src/opencensus_ext_newrelic/version.py",
         "write_to_template": """\
