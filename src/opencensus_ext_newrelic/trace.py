@@ -74,7 +74,7 @@ class NewRelicTraceExporter(base_exporter.Exporter):
     def __init__(self, insert_key, service_name, host=None, transport=DefaultTransport):
         self._common = {"attributes": {"service.name": service_name}}
         client = self.client = SpanClient(insert_key=insert_key, host=host)
-        client.add_version_info("NewRelic-Python-OpenCensus", __version__)
+        client.add_version_info("NewRelic-OpenCensus-Exporter", __version__)
         self._transport = transport(self)
 
     def emit(self, span_datas):

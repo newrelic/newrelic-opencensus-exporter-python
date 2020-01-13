@@ -117,7 +117,7 @@ def test_stats(stats_exporter, ensure_utf8, tag_values):
 
     # Verify headers
     user_agent = response.request.headers["user-agent"]
-    assert user_agent.split()[-1].startswith("NewRelic-Python-OpenCensus/")
+    assert user_agent.split()[-1].startswith("NewRelic-OpenCensus-Exporter/")
 
     # Verify payload
     data = json.loads(ensure_utf8(response.request.body))
