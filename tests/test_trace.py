@@ -1,6 +1,7 @@
 import logging
 import json
 import pytest
+from datetime import datetime, timedelta
 from opencensus_ext_newrelic import NewRelicTraceExporter
 from opencensus.common.transports import sync
 from opencensus.trace import span_context
@@ -23,6 +24,9 @@ def trace_exporter(hosts, insert_key):
     return exporter
 
 
+TEST_TIME = datetime.utcnow()
+START_TIME = TEST_TIME.isoformat() + "Z"
+END_TIME = (TEST_TIME + timedelta(seconds=1)).isoformat() + "Z"
 SPAN_DATA = {
     "name": "test_span",
     "context": span_context.SpanContext(
@@ -31,8 +35,8 @@ SPAN_DATA = {
     "span_id": "6e0c63257de34c92",
     "parent_span_id": "6e0c63257de34c93",
     "attributes": {"key1": "value1"},
-    "start_time": "2019-05-11T00:07:48.0Z",
-    "end_time": "2019-05-11T00:07:49.0Z",
+    "start_time": START_TIME,
+    "end_time": END_TIME,
     "span_kind": 0,
 }
 for field in SpanData._fields:
@@ -44,7 +48,7 @@ SPAN_DATA = SpanData(**SPAN_DATA)
 
 def test_trace(trace_exporter, ensure_utf8):
     duration = 1000
-    timestamp = 1557533268000
+    timestamp = int((TEST_TIME - datetime(1970, 1, 1)).total_seconds() * 1000.0)
 
     response = trace_exporter.export([SPAN_DATA])
 

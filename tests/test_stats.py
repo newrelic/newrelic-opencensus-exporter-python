@@ -1,6 +1,7 @@
 import logging
 import json
 import pytest
+import time
 from datetime import datetime
 from opencensus.stats import aggregation as aggregation_module
 from opencensus.stats import measure as measure_module
@@ -45,7 +46,9 @@ VIEWS.update(GAUGE_VIEWS)
 VIEWS.update(COUNT_VIEWS)
 VIEWS.update(DISTRIBUTION_VIEWS)
 
-TEST_TIMESTAMP = datetime.utcfromtimestamp(1557785724.128)
+TEST_TIME = time.time()
+EXPECTED_TIMESTAMP = int(TEST_TIME * 1000.0)
+TEST_TIMESTAMP = datetime.utcfromtimestamp(TEST_TIME)
 
 
 @pytest.fixture
@@ -145,7 +148,7 @@ def test_stats(stats_exporter, ensure_utf8, tag_values):
 
         assert metric_data["attributes"]["measure.name"] == MEASURE.name
         assert metric_data["attributes"]["measure.unit"] == MEASURE.unit
-        assert metric_data["timestamp"] == 1557785724128
+        assert metric_data["timestamp"] == EXPECTED_TIMESTAMP
 
         if view_name in GAUGE_VIEWS:
             # Check that each metric is a gauge
