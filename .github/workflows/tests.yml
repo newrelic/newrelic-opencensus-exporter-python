@@ -40,4 +40,4 @@ jobs:
       run: tox -vv
       env:
         TOXENV: lint
-      if: matrix.python-version == 3.8
+      if: matrix.python-version == 3.7
