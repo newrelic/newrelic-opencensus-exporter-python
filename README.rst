@@ -1,13 +1,10 @@
 New Relic OpenCensus Exporter
 =============================
 
-|ci| |coverage| |docs| |black|
+|ci| |docs| |black|
 
-.. |ci| image:: https://img.shields.io/azure-devops/build/newrelic-builds/python/4.svg
-    :target: https://dev.azure.com/newrelic-builds/python/_build/latest?definitionId=4&branchName=master
-
-.. |coverage| image:: https://img.shields.io/azure-devops/coverage/newrelic-builds/python/4.svg
-    :target: https://dev.azure.com/newrelic-builds/python/_build/latest?definitionId=4&branchName=master
+.. |ci| image:: https://github.com/newrelic/newrelic-opencensus-exporter-python/workflows/Tests/badge.svg
+    :target: https://github.com/newrelic/newrelic-opencensus-exporter-python/actions?query=workflow%3ATests
 
 .. |docs| image:: https://img.shields.io/badge/docs-available-brightgreen.svg
     :target: https://newrelic.github.io/newrelic-opencensus-exporter-python/
