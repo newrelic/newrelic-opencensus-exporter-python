@@ -118,4 +118,4 @@ Tips on how to find and query your data:
 For general querying information, see:
 
 * `Query New Relic data <https://docs.newrelic.com/docs/using-new-relic/data/understand-data/query-new-relic-data>`__  
-* `Intro to NRQL <https://docs.newrelic.com/docs/query-data/nrql-new-relic-query-language/getting-started/nrql-syntax-clauses-functions>`__  
+* `Intro to NRQL <https://docs.newrelic.com/docs/query-data/nrql-new-relic-query-language/getting-started/introduction-nrql>`__  
