@@ -1,4 +1,4 @@
-New Relic OpenCensus Exporter
+New Relic OpenCensus exporter
 =============================
 
 |ci| |docs| |black|
