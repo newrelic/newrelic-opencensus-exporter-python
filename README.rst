@@ -108,7 +108,7 @@ The example code assumes you've set the following environment variables:
 
 
 Find and use your data
-------------
+----------------------
 
 Tips on how to find and query your data:
 
