@@ -130,13 +130,10 @@ def test_stats(stats_exporter, ensure_utf8, tag_values):
     assert common["attributes"]["service.name"] == "Python Application"
 
     metrics_data = data[0]["metrics"]
-    assert len(metrics_data) == (
-        len(tag_values) * (len(GAUGE_VIEWS) + len(COUNT_VIEWS))
-    ), metrics_data
+    num_views = len(GAUGE_VIEWS) + len(COUNT_VIEWS) + len(DISTRIBUTION_VIEWS)
+    assert len(metrics_data) == (len(tag_values) * num_views), metrics_data
 
-    remaining_tags = {
-        view: set(tag_values) for view in VIEWS if view not in DISTRIBUTION_VIEWS
-    }
+    remaining_tags = {view: set(tag_values) for view in VIEWS}
 
     for metric_data in metrics_data:
         view_name = metric_data["name"]
@@ -153,8 +150,10 @@ def test_stats(stats_exporter, ensure_utf8, tag_values):
         if view_name in GAUGE_VIEWS:
             # Check that each metric is a gauge
             assert "type" not in metric_data
-        else:
+        elif view_name in COUNT_VIEWS:
             assert metric_data["type"] == "count"
+        else:
+            assert metric_data["type"] == "summary"
 
         expected_tags.remove(metric_data["attributes"]["tag"])
         if not expected_tags:

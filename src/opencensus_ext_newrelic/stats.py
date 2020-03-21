@@ -13,10 +13,11 @@
 # limitations under the License.
 
 import calendar
+from collections import namedtuple
 from opencensus.stats import stats
 from opencensus.metrics import transport
 from opencensus.stats import aggregation
-from newrelic_telemetry_sdk import MetricClient, GaugeMetric, CountMetric
+from newrelic_telemetry_sdk import MetricClient, GaugeMetric, CountMetric, SummaryMetric
 
 import logging
 
@@ -27,6 +28,10 @@ except ImportError:  # pragma: no cover
 
 _logger = logging.getLogger(__name__)
 COUNT_AGGREGATION_TYPES = {aggregation.CountAggregation, aggregation.SumAggregation}
+GAUGE_AGGREGATION_TYPES = {aggregation.LastValueAggregation}
+
+SummaryValue = namedtuple("SummaryValue", "count sum")
+default_summary = SummaryValue(count=0, sum=0)
 
 
 def create_identity(name, tags):
@@ -64,6 +69,7 @@ class NewRelicStatsExporter(object):
         client.add_version_info("NewRelic-OpenCensus-Exporter", __version__)
         self.views = {}
         self.count_values = {}
+        self.summary_values = {}
 
         # Register an exporter thread for this exporter
         thread = self._thread = transport.get_exporter_thread(
@@ -106,10 +112,11 @@ class NewRelicStatsExporter(object):
             for timeseries in metric.time_series:
                 # In distribution aggregations, the values do not have a value attribute
                 # We simply ignore this case for now
+                value = timeseries.points[0].value
                 try:
-                    value = timeseries.points[0].value.value
+                    value = value.value
                 except AttributeError:
-                    break
+                    value = SummaryValue(count=value.count, sum=value.sum)
 
                 timestamp = timeseries.points[0].timestamp
                 time_tuple = timestamp.utctimetuple()
@@ -137,14 +144,33 @@ class NewRelicStatsExporter(object):
                         name=name, value=value, tags=_tags, end_time_ms=end_time_ms
                     )
 
-                else:
+                elif type(aggregation_type) in GAUGE_AGGREGATION_TYPES:
                     nr_metric = GaugeMetric(
                         name=name, value=value, tags=_tags, end_time_ms=end_time_ms
+                    )
+                else:
+                    identity = create_identity(name, _tags)
+
+                    # compute a delta count based on the previous value. if one
+                    # does not exist, report the raw count value.
+                    last = self.summary_values.get(identity, default_summary)
+                    delta_count = value.count - last.count
+                    delta_sum = value.sum - last.sum
+                    self.summary_values[identity] = value
+
+                    nr_metric = SummaryMetric(
+                        name=name,
+                        count=delta_count,
+                        sum=delta_sum,
+                        min=None,
+                        max=None,
+                        tags=_tags,
+                        end_time_ms=end_time_ms,
                     )
 
                 nr_metrics.append(nr_metric)
 
-        # Do not send an empty metrics payload (only DistributionAggregation values)
+        # Do not send an empty metrics payload
         if not nr_metrics:
             return
 
