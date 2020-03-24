@@ -51,6 +51,28 @@ EXPECTED_TIMESTAMP = int(TEST_TIME * 1000.0)
 TEST_TIMESTAMP = datetime.utcfromtimestamp(TEST_TIME)
 
 
+class InvalidPoint(object):
+    value = "invalid"
+
+
+class InvalidTimeSeries(object):
+    points = [InvalidPoint]
+
+
+class InvalidMetric(object):
+    name = "invalid"
+    aggregation = "none"
+
+    class measure(object):
+        name = "invalid"
+        unit = "invalid"
+
+    class descriptor(object):
+        name = "invalid"
+
+    time_series = [InvalidTimeSeries]
+
+
 @pytest.fixture
 def stats_exporter(insert_key, hosts):
     exporter = NewRelicStatsExporter(
@@ -287,3 +309,14 @@ def test_default_exporter_values(insert_key):
     exporter._thread.cancel()
 
     assert exporter.interval == 5
+
+
+def test_invalid_point(stats_exporter, caplog):
+    stats_exporter.on_register_view(InvalidMetric)
+    stats_exporter.export_metrics([InvalidMetric])
+
+    assert (
+        "opencensus_ext_newrelic.stats",
+        logging.WARNING,
+        "Unable to send metric invalid with value: invalid",
+    ) in caplog.record_tuples
