@@ -16,7 +16,7 @@ import calendar
 from opencensus.stats import stats
 from opencensus.metrics import transport
 from opencensus.stats import aggregation
-from newrelic_telemetry_sdk import MetricClient, GaugeMetric, CountMetric
+from newrelic_telemetry_sdk import MetricClient, GaugeMetric, CountMetric, SummaryMetric
 
 import logging
 
@@ -64,6 +64,7 @@ class NewRelicStatsExporter(object):
         client.add_version_info("NewRelic-OpenCensus-Exporter", __version__)
         self.views = {}
         self.count_values = {}
+        self.summary_values = {}
 
         # Register an exporter thread for this exporter
         thread = self._thread = transport.get_exporter_thread(
@@ -104,11 +105,15 @@ class NewRelicStatsExporter(object):
             tags = {"measure.name": measure_name, "measure.unit": measure_unit}
 
             for timeseries in metric.time_series:
-                # In distribution aggregations, the values do not have a value attribute
-                # We simply ignore this case for now
-                try:
-                    value = timeseries.points[0].value.value
-                except AttributeError:
+                value = timeseries.points[0].value
+                if hasattr(value, "value"):
+                    value = value.value
+                elif hasattr(value, "count") and hasattr(value, "sum"):
+                    value = {"count": value.count, "sum": value.sum}
+                else:
+                    _logger.warning(
+                        "Unable to send metric %s with value: %s", name, value
+                    )
                     break
 
                 timestamp = timeseries.points[0].timestamp
@@ -124,7 +129,28 @@ class NewRelicStatsExporter(object):
                 _tags = tags.copy()
                 _tags.update(labels)
 
-                if type(aggregation_type) in COUNT_AGGREGATION_TYPES:
+                if isinstance(value, dict):
+                    identity = create_identity(name, _tags)
+
+                    # compute a delta count based on the previous value. if one
+                    # does not exist, report the raw count value.
+                    last_count = last_sum = 0
+                    if identity in self.summary_values:
+                        last = self.summary_values[identity]
+                        last_count = last["count"]
+                        last_sum = last["sum"]
+                    self.summary_values[identity] = value
+
+                    nr_metric = SummaryMetric.from_value(
+                        name=name, tags=_tags, end_time_ms=end_time_ms, value=None,
+                    )
+                    nr_metric.value.update(value)
+                    value = nr_metric.value
+
+                    value["count"] -= last_count
+                    value["sum"] -= last_sum
+
+                elif type(aggregation_type) in COUNT_AGGREGATION_TYPES:
                     identity = create_identity(name, _tags)
 
                     # Compute a delta count based on the previous value. If one
@@ -144,7 +170,7 @@ class NewRelicStatsExporter(object):
 
                 nr_metrics.append(nr_metric)
 
-        # Do not send an empty metrics payload (only DistributionAggregation values)
+        # Do not send an empty metrics payload
         if not nr_metrics:
             return
 

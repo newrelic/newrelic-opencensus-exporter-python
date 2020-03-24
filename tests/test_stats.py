@@ -51,6 +51,28 @@ EXPECTED_TIMESTAMP = int(TEST_TIME * 1000.0)
 TEST_TIMESTAMP = datetime.utcfromtimestamp(TEST_TIME)
 
 
+class InvalidPoint(object):
+    value = "invalid"
+
+
+class InvalidTimeSeries(object):
+    points = [InvalidPoint]
+
+
+class InvalidMetric(object):
+    name = "invalid"
+    aggregation = "none"
+
+    class measure(object):
+        name = "invalid"
+        unit = "invalid"
+
+    class descriptor(object):
+        name = "invalid"
+
+    time_series = [InvalidTimeSeries]
+
+
 @pytest.fixture
 def stats_exporter(insert_key, hosts):
     exporter = NewRelicStatsExporter(
@@ -130,13 +152,10 @@ def test_stats(stats_exporter, ensure_utf8, tag_values):
     assert common["attributes"]["service.name"] == "Python Application"
 
     metrics_data = data[0]["metrics"]
-    assert len(metrics_data) == (
-        len(tag_values) * (len(GAUGE_VIEWS) + len(COUNT_VIEWS))
-    ), metrics_data
+    num_views = len(GAUGE_VIEWS) + len(COUNT_VIEWS) + len(DISTRIBUTION_VIEWS)
+    assert len(metrics_data) == (len(tag_values) * num_views), metrics_data
 
-    remaining_tags = {
-        view: set(tag_values) for view in VIEWS if view not in DISTRIBUTION_VIEWS
-    }
+    remaining_tags = {view: set(tag_values) for view in VIEWS}
 
     for metric_data in metrics_data:
         view_name = metric_data["name"]
@@ -153,8 +172,12 @@ def test_stats(stats_exporter, ensure_utf8, tag_values):
         if view_name in GAUGE_VIEWS:
             # Check that each metric is a gauge
             assert "type" not in metric_data
-        else:
+        elif view_name in COUNT_VIEWS:
             assert metric_data["type"] == "count"
+        else:
+            assert metric_data["type"] == "summary"
+
+        assert len(metric_data) <= 5
 
         expected_tags.remove(metric_data["attributes"]["tag"])
         if not expected_tags:
@@ -202,7 +225,7 @@ def test_bad_http_response(stats_exporter, caplog):
     ) in caplog.record_tuples
 
 
-def test_metric_computes_delta(stats_exporter, ensure_utf8):
+def test_count_metric_computes_delta(stats_exporter, ensure_utf8):
     view_data_objects = [to_view_data(view) for view in COUNT_VIEWS.values()]
     for delta_first, delta_second in ((2, 1), (1, 0), (0, 0)):
         record_values(view_data_objects, {"tag": "first"}, count=delta_first)
@@ -217,7 +240,7 @@ def test_metric_computes_delta(stats_exporter, ensure_utf8):
             for view_name in COUNT_VIEWS
         }
         metrics_data = data[0]["metrics"]
-        assert len(metrics_data) == 4
+        assert len(metrics_data) == len(view_data_objects) * 2
         for metric in metrics_data:
             assert metric["type"] == "count"
             view_values = expected_values[metric["name"]]
@@ -226,6 +249,48 @@ def test_metric_computes_delta(stats_exporter, ensure_utf8):
             if not view_values:
                 expected_values.pop(metric["name"])
         assert not expected_values
+
+
+def test_summary_metric_computes_delta(stats_exporter, ensure_utf8):
+    view_data_objects = [to_view_data(view) for view in DISTRIBUTION_VIEWS.values()]
+    for delta_first, delta_second in ((2, 1), (1, 0), (0, 0)):
+        record_values(
+            view_data_objects,
+            {"tag": "first"},
+            value=float(delta_first),
+            count=delta_first,
+        )
+        record_values(
+            view_data_objects,
+            {"tag": "second"},
+            value=delta_second,
+            count=delta_second,
+        )
+        metrics = generate_metrics(view_data_objects)
+
+        response = stats_exporter.export_metrics(metrics)
+        data = json.loads(ensure_utf8(response.request.body))
+
+        expected_values = {
+            view_name: {"first": delta_first, "second": delta_second}
+            for view_name in DISTRIBUTION_VIEWS
+        }
+
+        metrics_data = data[0]["metrics"]
+        assert len(metrics_data) == len(view_data_objects) * 2
+
+        for metric in metrics_data:
+            view_values = expected_values[metric["name"]]
+            expected_count = view_values.pop(metric["attributes"]["tag"])
+            expected_sum = expected_count ** 2
+
+            assert metric["type"] == "summary"
+            assert metric["value"] == {
+                "count": expected_count,
+                "sum": expected_sum,
+                "min": None,
+                "max": None,
+            }
 
 
 def test_stop_clears_all_state(stats_exporter):
@@ -244,3 +309,14 @@ def test_default_exporter_values(insert_key):
     exporter._thread.cancel()
 
     assert exporter.interval == 5
+
+
+def test_invalid_point(stats_exporter, caplog):
+    stats_exporter.on_register_view(InvalidMetric)
+    stats_exporter.export_metrics([InvalidMetric])
+
+    assert (
+        "opencensus_ext_newrelic.stats",
+        logging.WARNING,
+        "Unable to send metric invalid with value: invalid",
+    ) in caplog.record_tuples
