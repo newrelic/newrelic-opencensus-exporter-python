@@ -203,7 +203,7 @@ def test_bad_http_response(stats_exporter, caplog):
     ) in caplog.record_tuples
 
 
-def test_metric_computes_delta(stats_exporter, ensure_utf8):
+def test_count_metric_computes_delta(stats_exporter, ensure_utf8):
     view_data_objects = [to_view_data(view) for view in COUNT_VIEWS.values()]
     for delta_first, delta_second in ((2, 1), (1, 0), (0, 0)):
         record_values(view_data_objects, {"tag": "first"}, count=delta_first)
@@ -218,7 +218,7 @@ def test_metric_computes_delta(stats_exporter, ensure_utf8):
             for view_name in COUNT_VIEWS
         }
         metrics_data = data[0]["metrics"]
-        assert len(metrics_data) == 4
+        assert len(metrics_data) == len(view_data_objects) * 2
         for metric in metrics_data:
             assert metric["type"] == "count"
             view_values = expected_values[metric["name"]]
@@ -227,6 +227,48 @@ def test_metric_computes_delta(stats_exporter, ensure_utf8):
             if not view_values:
                 expected_values.pop(metric["name"])
         assert not expected_values
+
+
+def test_summary_metric_computes_delta(stats_exporter, ensure_utf8):
+    view_data_objects = [to_view_data(view) for view in DISTRIBUTION_VIEWS.values()]
+    for delta_first, delta_second in ((2, 1), (1, 0), (0, 0)):
+        record_values(
+            view_data_objects,
+            {"tag": "first"},
+            value=float(delta_first),
+            count=delta_first,
+        )
+        record_values(
+            view_data_objects,
+            {"tag": "second"},
+            value=delta_second,
+            count=delta_second,
+        )
+        metrics = generate_metrics(view_data_objects)
+
+        response = stats_exporter.export_metrics(metrics)
+        data = json.loads(ensure_utf8(response.request.body))
+
+        expected_values = {
+            view_name: {"first": delta_first, "second": delta_second}
+            for view_name in DISTRIBUTION_VIEWS
+        }
+
+        metrics_data = data[0]["metrics"]
+        assert len(metrics_data) == len(view_data_objects) * 2
+
+        for metric in metrics_data:
+            view_values = expected_values[metric["name"]]
+            expected_count = view_values.pop(metric["attributes"]["tag"])
+            expected_sum = expected_count ** 2
+
+            assert metric["type"] == "summary"
+            assert metric["value"] == {
+                "count": expected_count,
+                "sum": expected_sum,
+                "min": None,
+                "max": None,
+            }
 
 
 def test_stop_clears_all_state(stats_exporter):
