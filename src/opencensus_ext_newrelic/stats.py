@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import calendar
-from collections import namedtuple
 from opencensus.stats import stats
 from opencensus.metrics import transport
 from opencensus.stats import aggregation
@@ -28,10 +27,6 @@ except ImportError:  # pragma: no cover
 
 _logger = logging.getLogger(__name__)
 COUNT_AGGREGATION_TYPES = {aggregation.CountAggregation, aggregation.SumAggregation}
-GAUGE_AGGREGATION_TYPES = {aggregation.LastValueAggregation}
-
-SummaryValue = namedtuple("SummaryValue", "count sum")
-default_summary = SummaryValue(count=0, sum=0)
 
 
 def create_identity(name, tags):
@@ -110,13 +105,16 @@ class NewRelicStatsExporter(object):
             tags = {"measure.name": measure_name, "measure.unit": measure_unit}
 
             for timeseries in metric.time_series:
-                # In distribution aggregations, the values do not have a value attribute
-                # We simply ignore this case for now
                 value = timeseries.points[0].value
-                try:
+                if hasattr(value, "value"):
                     value = value.value
-                except AttributeError:
-                    value = SummaryValue(count=value.count, sum=value.sum)
+                elif hasattr(value, "count") and hasattr(value, "sum"):
+                    value = {"count": value.count, "sum": value.sum}
+                else:
+                    _logger.warning(
+                        "Unable to send metric %s with value: %s", name, value
+                    )
+                    break
 
                 timestamp = timeseries.points[0].timestamp
                 time_tuple = timestamp.utctimetuple()
@@ -131,7 +129,28 @@ class NewRelicStatsExporter(object):
                 _tags = tags.copy()
                 _tags.update(labels)
 
-                if type(aggregation_type) in COUNT_AGGREGATION_TYPES:
+                if isinstance(value, dict):
+                    identity = create_identity(name, _tags)
+
+                    # compute a delta count based on the previous value. if one
+                    # does not exist, report the raw count value.
+                    last_count = last_sum = 0
+                    if identity in self.summary_values:
+                        last = self.summary_values[identity]
+                        last_count = last["count"]
+                        last_sum = last["sum"]
+                    self.summary_values[identity] = value
+
+                    nr_metric = SummaryMetric.from_value(
+                        name=name, tags=_tags, end_time_ms=end_time_ms, value=None,
+                    )
+                    nr_metric.value.update(value)
+                    value = nr_metric.value
+
+                    value["count"] -= last_count
+                    value["sum"] -= last_sum
+
+                elif type(aggregation_type) in COUNT_AGGREGATION_TYPES:
                     identity = create_identity(name, _tags)
 
                     # Compute a delta count based on the previous value. If one
@@ -144,28 +163,9 @@ class NewRelicStatsExporter(object):
                         name=name, value=value, tags=_tags, end_time_ms=end_time_ms
                     )
 
-                elif type(aggregation_type) in GAUGE_AGGREGATION_TYPES:
+                else:
                     nr_metric = GaugeMetric(
                         name=name, value=value, tags=_tags, end_time_ms=end_time_ms
-                    )
-                else:
-                    identity = create_identity(name, _tags)
-
-                    # compute a delta count based on the previous value. if one
-                    # does not exist, report the raw count value.
-                    last = self.summary_values.get(identity, default_summary)
-                    delta_count = value.count - last.count
-                    delta_sum = value.sum - last.sum
-                    self.summary_values[identity] = value
-
-                    nr_metric = SummaryMetric(
-                        name=name,
-                        count=delta_count,
-                        sum=delta_sum,
-                        min=None,
-                        max=None,
-                        tags=_tags,
-                        end_time_ms=end_time_ms,
                     )
 
                 nr_metrics.append(nr_metric)

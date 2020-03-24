@@ -155,6 +155,8 @@ def test_stats(stats_exporter, ensure_utf8, tag_values):
         else:
             assert metric_data["type"] == "summary"
 
+        assert len(metric_data) <= 5
+
         expected_tags.remove(metric_data["attributes"]["tag"])
         if not expected_tags:
             remaining_tags.pop(view.name)
