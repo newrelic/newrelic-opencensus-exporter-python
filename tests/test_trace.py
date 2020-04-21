@@ -46,7 +46,7 @@ for field in SpanData._fields:
 SPAN_DATA = SpanData(**SPAN_DATA)
 
 
-def test_trace(trace_exporter, ensure_utf8):
+def test_trace(trace_exporter, decompress_payload):
     duration = 1000
     timestamp = int((TEST_TIME - datetime(1970, 1, 1)).total_seconds() * 1000.0)
 
@@ -57,7 +57,7 @@ def test_trace(trace_exporter, ensure_utf8):
     assert user_agent.split()[-1].startswith("NewRelic-OpenCensus-Exporter/")
 
     # Verify payload
-    data = json.loads(ensure_utf8(response.request.body))
+    data = json.loads(decompress_payload(response.request.body))
     assert len(data) == 1
     data = data[0]
     spans, common = data["spans"], data["common"]

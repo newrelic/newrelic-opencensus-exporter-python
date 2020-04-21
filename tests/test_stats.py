@@ -122,7 +122,7 @@ def to_view_data(view):
     ((None,), ("foo",), ("foo", "bar")),
     ids=("no tag value", "single tag value", "multiple tag values"),
 )
-def test_stats(stats_exporter, ensure_utf8, tag_values):
+def test_stats(stats_exporter, decompress_payload, tag_values):
     view_data_objects = [to_view_data(view) for view in VIEWS.values()]
 
     # Record values
@@ -145,7 +145,7 @@ def test_stats(stats_exporter, ensure_utf8, tag_values):
     assert user_agent.split()[-1].startswith("NewRelic-OpenCensus-Exporter/")
 
     # Verify payload
-    data = json.loads(ensure_utf8(response.request.body))
+    data = json.loads(decompress_payload(response.request.body))
     common = data[0]["common"]
     assert len(common) == 2
     assert common["interval.ms"] == stats_exporter.interval * 1000
@@ -225,7 +225,7 @@ def test_bad_http_response(stats_exporter, caplog):
     ) in caplog.record_tuples
 
 
-def test_count_metric_computes_delta(stats_exporter, ensure_utf8):
+def test_count_metric_computes_delta(stats_exporter, decompress_payload):
     view_data_objects = [to_view_data(view) for view in COUNT_VIEWS.values()]
     for delta_first, delta_second in ((2, 1), (1, 0), (0, 0)):
         record_values(view_data_objects, {"tag": "first"}, count=delta_first)
@@ -233,7 +233,7 @@ def test_count_metric_computes_delta(stats_exporter, ensure_utf8):
         metrics = generate_metrics(view_data_objects)
 
         response = stats_exporter.export_metrics(metrics)
-        data = json.loads(ensure_utf8(response.request.body))
+        data = json.loads(decompress_payload(response.request.body))
 
         expected_values = {
             view_name: {"first": delta_first, "second": delta_second}
@@ -251,7 +251,7 @@ def test_count_metric_computes_delta(stats_exporter, ensure_utf8):
         assert not expected_values
 
 
-def test_summary_metric_computes_delta(stats_exporter, ensure_utf8):
+def test_summary_metric_computes_delta(stats_exporter, decompress_payload):
     view_data_objects = [to_view_data(view) for view in DISTRIBUTION_VIEWS.values()]
     for delta_first, delta_second in ((2, 1), (1, 0), (0, 0)):
         record_values(
@@ -269,7 +269,7 @@ def test_summary_metric_computes_delta(stats_exporter, ensure_utf8):
         metrics = generate_metrics(view_data_objects)
 
         response = stats_exporter.export_metrics(metrics)
-        data = json.loads(ensure_utf8(response.request.body))
+        data = json.loads(decompress_payload(response.request.body))
 
         expected_values = {
             view_name: {"first": delta_first, "second": delta_second}
