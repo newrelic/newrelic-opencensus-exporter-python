@@ -1,6 +1,7 @@
 import os
 import functools
 import pytest
+import zlib
 from newrelic_telemetry_sdk.client import HTTPResponse
 from urllib3 import HTTPConnectionPool
 
@@ -17,6 +18,10 @@ def _ensure_utf8(s):
         except Exception:
             return
     return s
+
+
+def _decompress_data(d):
+    return _ensure_utf8(zlib.decompress(d, 31))
 
 
 class Request(object):
@@ -59,8 +64,8 @@ def _http_response(status_code):
 
 
 @pytest.fixture
-def ensure_utf8():
-    return _ensure_utf8
+def decompress_payload():
+    return _decompress_data
 
 
 @pytest.fixture
