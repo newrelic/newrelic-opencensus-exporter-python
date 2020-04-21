@@ -48,6 +48,8 @@ class NewRelicStatsExporter(object):
     :type interval: int or float
     :param host: (optional) Override the host for the API endpoint.
     :type host: str
+    :param port: (optional) Override the port for the API endpoint.
+    :type port: int
 
     Usage::
 
@@ -59,8 +61,8 @@ class NewRelicStatsExporter(object):
         >>> stats_exporter.stop()
     """
 
-    def __init__(self, insert_key, service_name, host=None, interval=5):
-        client = self.client = MetricClient(insert_key=insert_key, host=host)
+    def __init__(self, insert_key, service_name, interval=5, host=None, port=None):
+        client = self.client = MetricClient(insert_key=insert_key, host=host, port=port)
         client.add_version_info("NewRelic-OpenCensus-Exporter", __version__)
         self.views = {}
         self.count_values = {}
