@@ -51,8 +51,6 @@ class NewRelicTraceExporter(base_exporter.Exporter):
     :param service_name: (optional) The name of the entity to report spans
         into. Defaults to "Python Application".
     :type service_name: str
-    :param host: (optional) Override the host for the API endpoint.
-    :type host: str
     :param transport: (optional) Class for creating new transport objects. It
         should extend from the base_exporter
         :class:`opencensus.common.transports.base.Transport` type and implement
@@ -60,6 +58,10 @@ class NewRelicTraceExporter(base_exporter.Exporter):
         an async transport sending data every 5 seconds. The other option is
         :class:`opencensus.common.transports.async.AsyncTransport`.
     :type transport: :class:`opencensus.common.transports.base.Transport`
+    :param host: (optional) Override the host for the API endpoint.
+    :type host: str
+    :param port: (optional) Override the port for the API endpoint.
+    :type host: int
 
     Usage::
 
@@ -71,9 +73,11 @@ class NewRelicTraceExporter(base_exporter.Exporter):
         >>> trace_exporter.stop()
     """
 
-    def __init__(self, insert_key, service_name, host=None, transport=DefaultTransport):
+    def __init__(
+        self, insert_key, service_name, transport=DefaultTransport, host=None, port=None
+    ):
         self._common = {"attributes": {"service.name": service_name}}
-        client = self.client = SpanClient(insert_key=insert_key, host=host)
+        client = self.client = SpanClient(insert_key=insert_key, host=host, port=port)
         client.add_version_info("NewRelic-OpenCensus-Exporter", __version__)
         self._transport = transport(self)
 
