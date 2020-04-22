@@ -61,7 +61,7 @@ class NewRelicStatsExporter(object):
         >>> stats_exporter.stop()
     """
 
-    def __init__(self, insert_key, service_name, interval=5, host=None, port=None):
+    def __init__(self, insert_key, service_name, interval=5, host=None, port=443):
         client = self.client = MetricClient(insert_key=insert_key, host=host, port=port)
         client.add_version_info("NewRelic-OpenCensus-Exporter", __version__)
         self.views = {}
