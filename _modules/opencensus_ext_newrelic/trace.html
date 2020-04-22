@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opencensus_ext_newrelic.trace &mdash; opencensus_ext_newrelic 0.1.3 documentation</title>
+  <title>opencensus_ext_newrelic.trace &mdash; opencensus_ext_newrelic 0.2.0 documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -58,7 +58,7 @@
             
             
               <div class="version">
-                0.1
+                0.2
               </div>
             
           
@@ -203,8 +203,6 @@
 <span class="sd">    :param service_name: (optional) The name of the entity to report spans</span>
 <span class="sd">        into. Defaults to &quot;Python Application&quot;.</span>
 <span class="sd">    :type service_name: str</span>
-<span class="sd">    :param host: (optional) Override the host for the API endpoint.</span>
-<span class="sd">    :type host: str</span>
 <span class="sd">    :param transport: (optional) Class for creating new transport objects. It</span>
 <span class="sd">        should extend from the base_exporter</span>
 <span class="sd">        :class:`opencensus.common.transports.base.Transport` type and implement</span>
@@ -212,6 +210,10 @@
 <span class="sd">        an async transport sending data every 5 seconds. The other option is</span>
 <span class="sd">        :class:`opencensus.common.transports.async.AsyncTransport`.</span>
 <span class="sd">    :type transport: :class:`opencensus.common.transports.base.Transport`</span>
+<span class="sd">    :param host: (optional) Override the host for the API endpoint.</span>
+<span class="sd">    :type host: str</span>
+<span class="sd">    :param port: (optional) Override the port for the API endpoint.</span>
+<span class="sd">    :type host: int</span>
 
 <span class="sd">    Usage::</span>
 
@@ -223,9 +225,11 @@
 <span class="sd">        &gt;&gt;&gt; trace_exporter.stop()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">insert_key</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transport</span><span class="o">=</span><span class="n">DefaultTransport</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">insert_key</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">transport</span><span class="o">=</span><span class="n">DefaultTransport</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">443</span>
+    <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_common</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;service.name&quot;</span><span class="p">:</span> <span class="n">service_name</span><span class="p">}}</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">SpanClient</span><span class="p">(</span><span class="n">insert_key</span><span class="o">=</span><span class="n">insert_key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">SpanClient</span><span class="p">(</span><span class="n">insert_key</span><span class="o">=</span><span class="n">insert_key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_version_info</span><span class="p">(</span><span class="s2">&quot;NewRelic-OpenCensus-Exporter&quot;</span><span class="p">,</span> <span class="n">__version__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_transport</span> <span class="o">=</span> <span class="n">transport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 

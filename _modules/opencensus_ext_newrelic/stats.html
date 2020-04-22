@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opencensus_ext_newrelic.stats &mdash; opencensus_ext_newrelic 0.1.3 documentation</title>
+  <title>opencensus_ext_newrelic.stats &mdash; opencensus_ext_newrelic 0.2.0 documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -58,7 +58,7 @@
             
             
               <div class="version">
-                0.1
+                0.2
               </div>
             
           
@@ -168,7 +168,7 @@
 <span class="kn">from</span> <span class="nn">opencensus.stats</span> <span class="kn">import</span> <span class="n">stats</span>
 <span class="kn">from</span> <span class="nn">opencensus.metrics</span> <span class="kn">import</span> <span class="n">transport</span>
 <span class="kn">from</span> <span class="nn">opencensus.stats</span> <span class="kn">import</span> <span class="n">aggregation</span>
-<span class="kn">from</span> <span class="nn">newrelic_telemetry_sdk</span> <span class="kn">import</span> <span class="n">MetricClient</span><span class="p">,</span> <span class="n">GaugeMetric</span><span class="p">,</span> <span class="n">CountMetric</span>
+<span class="kn">from</span> <span class="nn">newrelic_telemetry_sdk</span> <span class="kn">import</span> <span class="n">MetricClient</span><span class="p">,</span> <span class="n">GaugeMetric</span><span class="p">,</span> <span class="n">CountMetric</span><span class="p">,</span> <span class="n">SummaryMetric</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 
@@ -200,6 +200,8 @@
 <span class="sd">    :type interval: int or float</span>
 <span class="sd">    :param host: (optional) Override the host for the API endpoint.</span>
 <span class="sd">    :type host: str</span>
+<span class="sd">    :param port: (optional) Override the port for the API endpoint.</span>
+<span class="sd">    :type port: int</span>
 
 <span class="sd">    Usage::</span>
 
@@ -211,11 +213,12 @@
 <span class="sd">        &gt;&gt;&gt; stats_exporter.stop()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">insert_key</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">MetricClient</span><span class="p">(</span><span class="n">insert_key</span><span class="o">=</span><span class="n">insert_key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">insert_key</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">443</span><span class="p">):</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">MetricClient</span><span class="p">(</span><span class="n">insert_key</span><span class="o">=</span><span class="n">insert_key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_version_info</span><span class="p">(</span><span class="s2">&quot;NewRelic-OpenCensus-Exporter&quot;</span><span class="p">,</span> <span class="n">__version__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">views</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">count_values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">summary_values</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Register an exporter thread for this exporter</span>
         <span class="n">thread</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span> <span class="o">=</span> <span class="n">transport</span><span class="o">.</span><span class="n">get_exporter_thread</span><span class="p">(</span>
@@ -256,11 +259,15 @@
             <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;measure.name&quot;</span><span class="p">:</span> <span class="n">measure_name</span><span class="p">,</span> <span class="s2">&quot;measure.unit&quot;</span><span class="p">:</span> <span class="n">measure_unit</span><span class="p">}</span>
 
             <span class="k">for</span> <span class="n">timeseries</span> <span class="ow">in</span> <span class="n">metric</span><span class="o">.</span><span class="n">time_series</span><span class="p">:</span>
-                <span class="c1"># In distribution aggregations, the values do not have a value attribute</span>
-                <span class="c1"># We simply ignore this case for now</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">value</span>
-                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span>
+                <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">sum</span><span class="p">}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;Unable to send metric </span><span class="si">%s</span><span class="s2"> with value: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span>
+                    <span class="p">)</span>
                     <span class="k">break</span>
 
                 <span class="n">timestamp</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">timestamp</span>
@@ -276,7 +283,28 @@
                 <span class="n">_tags</span> <span class="o">=</span> <span class="n">tags</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                 <span class="n">_tags</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">aggregation_type</span><span class="p">)</span> <span class="ow">in</span> <span class="n">COUNT_AGGREGATION_TYPES</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">identity</span> <span class="o">=</span> <span class="n">create_identity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_tags</span><span class="p">)</span>
+
+                    <span class="c1"># compute a delta count based on the previous value. if one</span>
+                    <span class="c1"># does not exist, report the raw count value.</span>
+                    <span class="n">last_count</span> <span class="o">=</span> <span class="n">last_sum</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">if</span> <span class="n">identity</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_values</span><span class="p">:</span>
+                        <span class="n">last</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_values</span><span class="p">[</span><span class="n">identity</span><span class="p">]</span>
+                        <span class="n">last_count</span> <span class="o">=</span> <span class="n">last</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span>
+                        <span class="n">last_sum</span> <span class="o">=</span> <span class="n">last</span><span class="p">[</span><span class="s2">&quot;sum&quot;</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">summary_values</span><span class="p">[</span><span class="n">identity</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+                    <span class="n">nr_metric</span> <span class="o">=</span> <span class="n">SummaryMetric</span><span class="o">.</span><span class="n">from_value</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">_tags</span><span class="p">,</span> <span class="n">end_time_ms</span><span class="o">=</span><span class="n">end_time_ms</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">nr_metric</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">nr_metric</span><span class="o">.</span><span class="n">value</span>
+
+                    <span class="n">value</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">last_count</span>
+                    <span class="n">value</span><span class="p">[</span><span class="s2">&quot;sum&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">last_sum</span>
+
+                <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">aggregation_type</span><span class="p">)</span> <span class="ow">in</span> <span class="n">COUNT_AGGREGATION_TYPES</span><span class="p">:</span>
                     <span class="n">identity</span> <span class="o">=</span> <span class="n">create_identity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_tags</span><span class="p">)</span>
 
                     <span class="c1"># Compute a delta count based on the previous value. If one</span>
@@ -296,7 +324,7 @@
 
                 <span class="n">nr_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nr_metric</span><span class="p">)</span>
 
-        <span class="c1"># Do not send an empty metrics payload (only DistributionAggregation values)</span>
+        <span class="c1"># Do not send an empty metrics payload</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">nr_metrics</span><span class="p">:</span>
             <span class="k">return</span>
 
