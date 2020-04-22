@@ -3,9 +3,11 @@ import json
 import pytest
 from datetime import datetime, timedelta
 from opencensus_ext_newrelic import NewRelicTraceExporter
+from opencensus_ext_newrelic.trace import DefaultTransport
 from opencensus.common.transports import sync
 from opencensus.trace import span_context
 from opencensus.trace.span_data import SpanData
+from newrelic_telemetry_sdk import SpanClient
 
 
 class Transport(sync.SyncTransport):
@@ -111,3 +113,31 @@ def test_stop_clears_all_state(trace_exporter):
 
     # Calling export after stop
     trace_exporter.export(())
+
+
+def test_default_exporter_values(insert_key):
+    exporter = NewRelicTraceExporter(insert_key, service_name="Python Application")
+
+    assert isinstance(exporter._transport, DefaultTransport)
+    assert exporter.client._pool.host == SpanClient.HOST
+    assert exporter.client._pool.port == 443
+
+
+class CustomTransport(DefaultTransport):
+    pass
+
+
+def test_override_exporter_values(insert_key):
+    host = "non-default-host"
+    port = 8080
+    exporter = NewRelicTraceExporter(
+        insert_key,
+        service_name="Python Application",
+        transport=CustomTransport,
+        host=host,
+        port=port,
+    )
+
+    assert isinstance(exporter._transport, CustomTransport)
+    assert exporter.client._pool.host == host
+    assert exporter.client._pool.port == port
