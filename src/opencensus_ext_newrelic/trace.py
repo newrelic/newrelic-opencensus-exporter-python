@@ -74,7 +74,7 @@ class NewRelicTraceExporter(base_exporter.Exporter):
     """
 
     def __init__(
-        self, insert_key, service_name, transport=DefaultTransport, host=None, port=None
+        self, insert_key, service_name, transport=DefaultTransport, host=None, port=443
     ):
         self._common = {"attributes": {"service.name": service_name}}
         client = self.client = SpanClient(insert_key=insert_key, host=host, port=port)
