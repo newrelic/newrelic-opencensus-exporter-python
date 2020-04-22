@@ -10,6 +10,7 @@ from opencensus.stats import view as view_module
 from opencensus.stats import view_data as view_data_module
 from opencensus.stats import metric_utils
 from opencensus_ext_newrelic import NewRelicStatsExporter
+from newrelic_telemetry_sdk import MetricClient
 
 
 # The latency in milliseconds
@@ -309,6 +310,26 @@ def test_default_exporter_values(insert_key):
     exporter._thread.cancel()
 
     assert exporter.interval == 5
+    assert exporter.client._pool.host == MetricClient.HOST
+    assert exporter.client._pool.port == 443
+
+
+def test_override_exporter_values(insert_key):
+    host = "non-default-host"
+    interval = 30
+    port = 8080
+    exporter = NewRelicStatsExporter(
+        insert_key,
+        service_name="Python Application",
+        interval=interval,
+        host=host,
+        port=port,
+    )
+    exporter._thread.cancel()
+
+    assert exporter.interval == interval
+    assert exporter.client._pool.host == host
+    assert exporter.client._pool.port == port
 
 
 def test_invalid_point(stats_exporter, caplog):
