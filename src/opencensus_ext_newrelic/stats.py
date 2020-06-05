@@ -16,7 +16,13 @@ import calendar
 from opencensus.stats import stats
 from opencensus.metrics import transport
 from opencensus.stats import aggregation
-from newrelic_telemetry_sdk import MetricClient, GaugeMetric, CountMetric, SummaryMetric
+from newrelic_telemetry_sdk import (
+    MetricBatch,
+    MetricClient,
+    GaugeMetric,
+    CountMetric,
+    SummaryMetric,
+)
 
 import logging
 
@@ -27,12 +33,6 @@ except ImportError:  # pragma: no cover
 
 _logger = logging.getLogger(__name__)
 COUNT_AGGREGATION_TYPES = {aggregation.CountAggregation, aggregation.SumAggregation}
-
-
-def create_identity(name, tags):
-    tags = frozenset(tags.items())
-    identity = (name, tags)
-    return identity
 
 
 class NewRelicStatsExporter(object):
@@ -65,8 +65,7 @@ class NewRelicStatsExporter(object):
         client = self.client = MetricClient(insert_key=insert_key, host=host, port=port)
         client.add_version_info("NewRelic-OpenCensus-Exporter", __version__)
         self.views = {}
-        self.count_values = {}
-        self.summary_values = {}
+        self.merged_values = {}
 
         # Register an exporter thread for this exporter
         thread = self._thread = transport.get_exporter_thread(
@@ -132,37 +131,46 @@ class NewRelicStatsExporter(object):
                 _tags.update(labels)
 
                 if isinstance(value, dict):
-                    identity = create_identity(name, _tags)
+                    identity = MetricBatch.create_identity(name, _tags, "summary")
 
                     # compute a delta count based on the previous value. if one
                     # does not exist, report the raw count value.
-                    last_count = last_sum = 0
-                    if identity in self.summary_values:
-                        last = self.summary_values[identity]
-                        last_count = last["count"]
-                        last_sum = last["sum"]
-                    self.summary_values[identity] = value
+                    if identity in self.merged_values:
+                        last = self.merged_values[identity]
+                        delta_count = value["count"] - last["count"]
+                        delta_sum = value["sum"] - last["sum"]
+                    else:
+                        delta_count = value["count"]
+                        delta_sum = value["sum"]
 
-                    nr_metric = SummaryMetric.from_value(
-                        name=name, tags=_tags, end_time_ms=end_time_ms, value=None,
+                    self.merged_values[identity] = value
+
+                    nr_metric = SummaryMetric(
+                        name=name,
+                        count=delta_count,
+                        sum=delta_sum,
+                        min=None,
+                        max=None,
+                        tags=_tags,
+                        end_time_ms=end_time_ms,
+                        interval_ms=None,
                     )
-                    nr_metric.value.update(value)
-                    value = nr_metric.value
-
-                    value["count"] -= last_count
-                    value["sum"] -= last_sum
 
                 elif type(aggregation_type) in COUNT_AGGREGATION_TYPES:
-                    identity = create_identity(name, _tags)
+                    identity = MetricBatch.create_identity(name, _tags, "count")
 
                     # Compute a delta count based on the previous value. If one
                     # does not exist, report the raw count value.
-                    delta = value - self.count_values.get(identity, 0)
-                    self.count_values[identity] = value
+                    delta = value - self.merged_values.get(identity, 0)
+                    self.merged_values[identity] = value
                     value = delta
 
                     nr_metric = CountMetric(
-                        name=name, value=value, tags=_tags, end_time_ms=end_time_ms
+                        name=name,
+                        value=value,
+                        tags=_tags,
+                        end_time_ms=end_time_ms,
+                        interval_ms=None,
                     )
 
                 else:

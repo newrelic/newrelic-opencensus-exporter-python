@@ -11,5 +11,5 @@ setuptools.setup(
 version = "{version!s}"
 """,
     },
-    install_requires=("opencensus~=0.7", "newrelic-telemetry-sdk>=0.3.0,<0.4"),
+    install_requires=("opencensus~=0.7", "newrelic-telemetry-sdk>=0.4.0,<0.5"),
 )
