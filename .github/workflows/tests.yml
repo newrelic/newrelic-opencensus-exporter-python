@@ -24,10 +24,11 @@ jobs:
             python-version: pypy3
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-python@v1
+    - uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
         architecture: x64
@@ -36,11 +37,18 @@ jobs:
         pip install -U pip
         pip install -U wheel setuptools tox
     - name: Test
-      run: tox -vv
+      run: tox -vv -- --cov-report=xml
       env:
         TOXENV: py
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
     - name: Lint
       run: tox -vv
       env:
         TOXENV: lint
-      if: matrix.python-version == 3.7
+      if: matrix.python-version == 3.7 && matrix.os == 'ubuntu-latest'
+    - name: Docs
+      run: tox -vv
+      env:
+        TOXENV: docs
+      if: matrix.python-version == 3.7 && matrix.os == 'ubuntu-latest'
