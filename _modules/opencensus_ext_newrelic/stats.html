@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opencensus_ext_newrelic.stats &mdash; opencensus_ext_newrelic 0.2.0 documentation</title>
+  <title>opencensus_ext_newrelic.stats &mdash; opencensus_ext_newrelic 0.2.1 documentation</title>
   
 
   
@@ -168,7 +168,13 @@
 <span class="kn">from</span> <span class="nn">opencensus.stats</span> <span class="kn">import</span> <span class="n">stats</span>
 <span class="kn">from</span> <span class="nn">opencensus.metrics</span> <span class="kn">import</span> <span class="n">transport</span>
 <span class="kn">from</span> <span class="nn">opencensus.stats</span> <span class="kn">import</span> <span class="n">aggregation</span>
-<span class="kn">from</span> <span class="nn">newrelic_telemetry_sdk</span> <span class="kn">import</span> <span class="n">MetricClient</span><span class="p">,</span> <span class="n">GaugeMetric</span><span class="p">,</span> <span class="n">CountMetric</span><span class="p">,</span> <span class="n">SummaryMetric</span>
+<span class="kn">from</span> <span class="nn">newrelic_telemetry_sdk</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MetricBatch</span><span class="p">,</span>
+    <span class="n">MetricClient</span><span class="p">,</span>
+    <span class="n">GaugeMetric</span><span class="p">,</span>
+    <span class="n">CountMetric</span><span class="p">,</span>
+    <span class="n">SummaryMetric</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 
@@ -179,12 +185,6 @@
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">COUNT_AGGREGATION_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="n">aggregation</span><span class="o">.</span><span class="n">CountAggregation</span><span class="p">,</span> <span class="n">aggregation</span><span class="o">.</span><span class="n">SumAggregation</span><span class="p">}</span>
-
-
-<div class="viewcode-block" id="create_identity"><a class="viewcode-back" href="../../api.html#opencensus_ext_newrelic.stats.create_identity">[docs]</a><span class="k">def</span> <span class="nf">create_identity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
-    <span class="n">tags</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-    <span class="n">identity</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">identity</span></div>
 
 
 <div class="viewcode-block" id="NewRelicStatsExporter"><a class="viewcode-back" href="../../api.html#opencensus_ext_newrelic.stats.NewRelicStatsExporter">[docs]</a><span class="k">class</span> <span class="nc">NewRelicStatsExporter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -217,8 +217,7 @@
         <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">MetricClient</span><span class="p">(</span><span class="n">insert_key</span><span class="o">=</span><span class="n">insert_key</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_version_info</span><span class="p">(</span><span class="s2">&quot;NewRelic-OpenCensus-Exporter&quot;</span><span class="p">,</span> <span class="n">__version__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">views</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">count_values</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">summary_values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merged_values</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Register an exporter thread for this exporter</span>
         <span class="n">thread</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thread</span> <span class="o">=</span> <span class="n">transport</span><span class="o">.</span><span class="n">get_exporter_thread</span><span class="p">(</span>
@@ -284,37 +283,46 @@
                 <span class="n">_tags</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                    <span class="n">identity</span> <span class="o">=</span> <span class="n">create_identity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_tags</span><span class="p">)</span>
+                    <span class="n">identity</span> <span class="o">=</span> <span class="n">MetricBatch</span><span class="o">.</span><span class="n">create_identity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_tags</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">)</span>
 
                     <span class="c1"># compute a delta count based on the previous value. if one</span>
                     <span class="c1"># does not exist, report the raw count value.</span>
-                    <span class="n">last_count</span> <span class="o">=</span> <span class="n">last_sum</span> <span class="o">=</span> <span class="mi">0</span>
-                    <span class="k">if</span> <span class="n">identity</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_values</span><span class="p">:</span>
-                        <span class="n">last</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_values</span><span class="p">[</span><span class="n">identity</span><span class="p">]</span>
-                        <span class="n">last_count</span> <span class="o">=</span> <span class="n">last</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span>
-                        <span class="n">last_sum</span> <span class="o">=</span> <span class="n">last</span><span class="p">[</span><span class="s2">&quot;sum&quot;</span><span class="p">]</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">summary_values</span><span class="p">[</span><span class="n">identity</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                    <span class="k">if</span> <span class="n">identity</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">merged_values</span><span class="p">:</span>
+                        <span class="n">last</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merged_values</span><span class="p">[</span><span class="n">identity</span><span class="p">]</span>
+                        <span class="n">delta_count</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">last</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span>
+                        <span class="n">delta_sum</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;sum&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">last</span><span class="p">[</span><span class="s2">&quot;sum&quot;</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">delta_count</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span>
+                        <span class="n">delta_sum</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;sum&quot;</span><span class="p">]</span>
 
-                    <span class="n">nr_metric</span> <span class="o">=</span> <span class="n">SummaryMetric</span><span class="o">.</span><span class="n">from_value</span><span class="p">(</span>
-                        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">_tags</span><span class="p">,</span> <span class="n">end_time_ms</span><span class="o">=</span><span class="n">end_time_ms</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">merged_values</span><span class="p">[</span><span class="n">identity</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+                    <span class="n">nr_metric</span> <span class="o">=</span> <span class="n">SummaryMetric</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">count</span><span class="o">=</span><span class="n">delta_count</span><span class="p">,</span>
+                        <span class="nb">sum</span><span class="o">=</span><span class="n">delta_sum</span><span class="p">,</span>
+                        <span class="nb">min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="nb">max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">tags</span><span class="o">=</span><span class="n">_tags</span><span class="p">,</span>
+                        <span class="n">end_time_ms</span><span class="o">=</span><span class="n">end_time_ms</span><span class="p">,</span>
+                        <span class="n">interval_ms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="p">)</span>
-                    <span class="n">nr_metric</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">nr_metric</span><span class="o">.</span><span class="n">value</span>
-
-                    <span class="n">value</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">last_count</span>
-                    <span class="n">value</span><span class="p">[</span><span class="s2">&quot;sum&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">last_sum</span>
 
                 <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">aggregation_type</span><span class="p">)</span> <span class="ow">in</span> <span class="n">COUNT_AGGREGATION_TYPES</span><span class="p">:</span>
-                    <span class="n">identity</span> <span class="o">=</span> <span class="n">create_identity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_tags</span><span class="p">)</span>
+                    <span class="n">identity</span> <span class="o">=</span> <span class="n">MetricBatch</span><span class="o">.</span><span class="n">create_identity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_tags</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">)</span>
 
                     <span class="c1"># Compute a delta count based on the previous value. If one</span>
                     <span class="c1"># does not exist, report the raw count value.</span>
-                    <span class="n">delta</span> <span class="o">=</span> <span class="n">value</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">identity</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">count_values</span><span class="p">[</span><span class="n">identity</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                    <span class="n">delta</span> <span class="o">=</span> <span class="n">value</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">merged_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">identity</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">merged_values</span><span class="p">[</span><span class="n">identity</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
                     <span class="n">value</span> <span class="o">=</span> <span class="n">delta</span>
 
                     <span class="n">nr_metric</span> <span class="o">=</span> <span class="n">CountMetric</span><span class="p">(</span>
-                        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">_tags</span><span class="p">,</span> <span class="n">end_time_ms</span><span class="o">=</span><span class="n">end_time_ms</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+                        <span class="n">tags</span><span class="o">=</span><span class="n">_tags</span><span class="p">,</span>
+                        <span class="n">end_time_ms</span><span class="o">=</span><span class="n">end_time_ms</span><span class="p">,</span>
+                        <span class="n">interval_ms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="p">)</span>
 
                 <span class="k">else</span><span class="p">:</span>
