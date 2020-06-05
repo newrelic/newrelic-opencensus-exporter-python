@@ -1,10 +1,18 @@
+|header|
+
+.. |header| image:: https://github.com/newrelic/open-source-office/raw/master/examples/categories/images/Community_Project.png
+    :target: https://github.com/newrelic/open-source-office/blob/master/examples/categories/index.md#category-community-project
+
 New Relic OpenCensus exporter
 =============================
 
-|ci| |docs| |black|
+|ci| |coverage| |docs| |black|
 
 .. |ci| image:: https://github.com/newrelic/newrelic-opencensus-exporter-python/workflows/Tests/badge.svg
     :target: https://github.com/newrelic/newrelic-opencensus-exporter-python/actions?query=workflow%3ATests
+
+.. |coverage| image:: https://img.shields.io/codecov/c/github/newrelic/newrelic-opencensus-exporter-python/master
+    :target: https://codecov.io/gh/newrelic/newrelic-opencensus-exporter-python
 
 .. |docs| image:: https://img.shields.io/badge/docs-available-brightgreen.svg
     :target: https://newrelic.github.io/newrelic-opencensus-exporter-python/
