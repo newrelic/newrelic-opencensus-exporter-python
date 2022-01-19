@@ -1,11 +1,16 @@
 |header|
 
-.. |header| image:: https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Community_Project.png
-    :target: https://opensource.newrelic.com/oss-category/#community-project
+.. |header| image:: https://github.com/newrelic/opensource-website/raw/main/src/images/categories/Archived.png
+    :target: https://opensource.newrelic.com/oss-category/#archived
+    
+❗ Notice
+==========
+
+This project has been archived as of January 18th, 2022. Please check out `New Relic's OpenTelemetry offerings <https://docs.newrelic.com/docs/more-integrations/open-source-telemetry-integrations/opentelemetry/introduction-opentelemetry-new-relic/>`_.
 
 New Relic OpenCensus exporter
 =============================
-
+ 
 |ci| |coverage| |docs| |black|
 
 .. |ci| image:: https://github.com/newrelic/newrelic-opencensus-exporter-python/workflows/Tests/badge.svg
